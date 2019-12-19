@@ -1,8 +1,10 @@
-INSERT INTO solutions (userId, categoryId, modified, content)
+
+
+INSERT INTO solutions (categoryId, userId, content)
 VALUES
-  (1, 3, "2019-01-03T00:00:00.000Z", "I think we should make people take a test similar to a driving test to operate a leathal weapon."),
-  (2, 2, "2019-02-03T00:00:00.000Z", "In order to lower the rate of babies that are born addicted to drugs and alchohol, those not ready for children could be offered a monthly monetery incentive to have some form of birth control. This would also cut down on welfare costs."),
-  (1, 1, "2019-04-03T00:00:00.000Z", "We could build dormitories where people could live and it could have a cafeteria. We should ake mental health housing accessable again. We could decriminalize drug use and offer free rehab."),
-  (2, 4, "2019-01-03T00:00:00.000Z", "Sed accumsan placerat pellentesque. Vivamus placerat lorem vel purus fermentum mattis. Donec a pharetra sapien, at euismod odio. Mauris molestie sem libero. Curabitur tincidunt auctor ligula, vel imperdiet neque tincidunt eu. Duis eu diam lacus. Pellentesque in ex dui."),
-  (1, 1, "2019-01-03T00:00:00.000Z", "Bop accumsan placerat pellentesque. Vivamus placerat lorem vel purus fermentum mattis. Donec a pharetra sapien, at euismod odio. Mauris molestie sem libero. Curabitur tincidunt auctor ligula, vel imperdiet neque tincidunt eu. Duis eu diam lacus. Pellentesque in ex dui."),
-  (2, 5, "2019-01-03T00:00:00.000Z", "Tuc accumsan placerat pellentesque. Vivamus placerat lorem vel purus fermentum mattis. Donec a pharetra sapien, at euismod odio. Mauris molestie sem libero. Curabitur tincidunt auctor ligula, vel imperdiet neque tincidunt eu. Duis eu diam lacus. Pellentesque in ex dui.")
+  (3, 2, 'I think we should make people take a test similar to a driving test to operate a leathal weapon.'),
+  (2, 2, 'In order to lower the rate of babies that are born addicted to drugs and alchohol, those not ready for children could be offered a monthly monetery incentive to have some form of birth control. This would also cut down on welfare costs.'),
+  (1, 1, 'We could build dormitories where people could live and it could have a cafeteria. We should ake mental health housing accessable again. We could decriminalize drug use and offer free rehab.'),
+  (4, 2, 'Sed accumsan placerat pellentesque. Vivamus placerat lorem vel purus fermentum mattis. Donec a pharetra sapien, at euismod odio. Mauris molestie sem libero. Curabitur tincidunt auctor ligula, vel imperdiet neque tincidunt eu. Duis eu diam lacus. Pellentesque in ex dui.'),
+  (1, 1, 'Bop accumsan placerat pellentesque. Vivamus placerat lorem vel purus fermentum mattis. Donec a pharetra sapien, at euismod odio. Mauris molestie sem libero. Curabitur tincidunt auctor ligula, vel imperdiet neque tincidunt eu. Duis eu diam lacus. Pellentesque in ex dui.'),
+  (5, 2, 'Tuc accumsan placerat pellentesque. Vivamus placerat lorem vel purus fermentum mattis. Donec a pharetra sapien, at euismod odio. Mauris molestie sem libero. Curabitur tincidunt auctor ligula, vel imperdiet neque tincidunt eu. Duis eu diam lacus. Pellentesque in ex dui.');

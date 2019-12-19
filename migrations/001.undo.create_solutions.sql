@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS users;
+
+DROP TABLE IF EXISTS solutions;
+
+DROP TABLE IF EXISTS categories;
+
+DROP TABLE IF EXISTS comments;
