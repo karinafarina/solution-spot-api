@@ -50,22 +50,58 @@ categoryRouter
 categoryRouter
   .route('/:categoryId')
   .all((req, res, next) => {
-    const { categoryId } = req.params
+    const { categoryId } = req.params;
     const knexInstance = req.app.get('db')
     CategoryService.getById(knexInstance, categoryId)
       .then(category => {
         if(!category) {
           return res.status(404).json({
             error: { message: `Category Not Found`}
-          })
+          });
         }
         res.category = category
         next()
       })
-      .catch(next)
+      .catch(next);
   }) 
-  .get((req, res, next) => {
+  .get((req, res) => {
     res.json(serializeCategory(res.category))
   })
+  .delete((req, res, next) => {
+    const { categoryId } = req.params
+    const knexInstance = req.app.get('db');
+    CategoryService.deleteCategory(knexInstance, categoryId)
+      .then(nemRowsAffected => {
+        res.status(204).json({
+          message: true
+        })
+      })
+      .catch(next)
+  })
+  .patch(jsonParser, (req, res, next) => {
+    const { title } = req.body
+    const categoryToUpdate = { title }
+
+    const numberOfValues = Object.values(categoryToUpdate).filter(Boolean).length
+    if(numberOfValues === 0)
+      return res.status(400).json({
+        error: {
+          message: `Request body must contain 'title'`
+        }
+      })
+      CategoryService.updateCategory(
+        req.app.get('db'),
+        req.params.categoryId,
+        categoryToUpdate
+      )
+      .then(numRowsAffected => {
+        console.log('numrows', numRowsAffected)
+        res.status(204).end()
+      })
+      .catch(next)
+  })
+
+  
+  
 
   module.exports = categoryRouter;

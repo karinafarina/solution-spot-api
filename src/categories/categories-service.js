@@ -18,15 +18,15 @@ const CategoryService = {
     return knex
       .from('categories')
       .select('*')
-      //Ask Jeremy about .where
+      //Make sure id is an integer
       .where('id', parseInt(categoryId, 10))
       .first()
   },
 
   deleteCategory(knex, categoryId) {
-    console.log('categoryid', categoryId)
     return knex('categories')
-      .where({ categoryId })
+      //Make sure id is an integer
+      .where('id', parseInt(categoryId, 10))
       .delete()
   },
 
