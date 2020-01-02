@@ -205,7 +205,7 @@ describe('Category Endpoints', function() {
         })
       })
     })
-    describe.only(`PATCH /api/categories/:categorId`, () => {
+    describe(`PATCH /api/categories/:categoryId`, () => {
       context(`Given no categories`, () => {
         it(`responds with 404`, () => {
           const categoryId = 123456
@@ -284,6 +284,5 @@ describe('Category Endpoints', function() {
         })
       })
     })
-
   })
 })

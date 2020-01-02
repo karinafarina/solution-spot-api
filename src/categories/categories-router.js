@@ -71,7 +71,7 @@ categoryRouter
     const { categoryId } = req.params
     const knexInstance = req.app.get('db');
     CategoryService.deleteCategory(knexInstance, categoryId)
-      .then(nemRowsAffected => {
+      .then(numRowsAffected => {
         res.status(204).json({
           message: true
         })
