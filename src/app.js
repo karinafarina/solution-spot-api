@@ -4,7 +4,7 @@ const morgan = require('morgan')
 const cors = require('cors')
 const helmet = require('helmet')
 const { NODE_ENV } = require('./config');
-const solutionRouter = require('./solutions/solutions-router');
+const solutionsRouter = require('./solutions/solutions-router');
 const categoryRouter = require('./categories/categories-router');
 
 const app = express()
@@ -17,7 +17,7 @@ app.use(morgan(morganOption))
 app.use(helmet())
 app.use(cors())
 
-app.use('/api/solutions', solutionRouter)
+app.use('/api/solutions', solutionsRouter);
 app.use('/api/categories', categoryRouter);
 
 app.get('/', (req, res) => {

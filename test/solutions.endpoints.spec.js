@@ -36,7 +36,6 @@ describe('Solutions Endpoints', function () {
     context('Given there are solutions', () => {
       const testSolution = makeSolutionsArray()
       const testCategory = makeCategoriesArray()
-
       beforeEach('insert category', () => {
         return db
           .into('categories')
@@ -48,22 +47,27 @@ describe('Solutions Endpoints', function () {
           })
       })
       // FIX LATER FIGURE OUT WHY COLUMN CATEGORYID OF RELATION SOLUTIONS DOES NOT EXIST
-      it.only('responds with 200 and all of the solutions', () => {
+      it('responds with 200 and all of the solutions', () => {
         return supertest(app)
           .get('/api/solutions')
           .expect(200, testSolution)
       })
-      console.log('testy', testSolution)
     })
 
     context(`Given an XSS attack solution`, () => {
       const { maliciousSolution, expectedSolution } = makeMaliciousSolution()
+      const testCategory = makeCategoriesArray()
 
       beforeEach('insert malicious solution', () => {
         return db
-          .into('solutions')
-          .insert(maliciousSolution)
+          .into('categories')
+          .insert(testCategory)
+          .then(() => {
+            return db
+            .into('solutions')
+            .insert(maliciousSolution)
       })
+    })
     
       // FIX LATER FIGURE OUT WHY COLUMN CATEGORYID OF RELATION SOLUTIONS DOES NOT EXIST
       it('removes XSS attack solution', () => {
@@ -116,13 +120,19 @@ describe('Solutions Endpoints', function () {
       })
 
       context('Given an XSS attack solution', () => {
-        const testSolution = makeSolutionsArray()
+        const testCategory = makeCategoriesArray();
+        // const testSolution = makeSolutionsArray()
         const { maliciousSolution, expectedSolution } = makeMaliciousSolution()
 
         beforeEach('insert malicious solution', () => {
           return db
-            .into('solutions')
-            .insert([maliciousSolution])
+            .into('categories')
+            .insert(testCategory)
+            .then(() => {
+              return db
+                .into('solutions')
+                .insert([maliciousSolution])
+            })
         })
 
         it('removes XSS attack content', () => {
@@ -131,8 +141,8 @@ describe('Solutions Endpoints', function () {
             .expect(200)
             .expect(res => {
               expect(res.body.categoryId).to.eql(expectedSolution.categoryId)
-              expect(res.body[0].userId).to.eql(expectedSolution.userId)
-              expect(res.body[0].content).to.eql(expectedSolution.content)
+              expect(res.body.userId).to.eql(expectedSolution.userId)
+              expect(res.body.content).to.eql(expectedSolution.content)
             })
         })
       })
@@ -202,9 +212,9 @@ describe('Solutions Endpoints', function () {
           .send(maliciousSolution)
           .expect(201)
           .expect(res => {
-            expect(res.body[0].categoryId).to.eql(expectedSolution.categoryId);
-            expect(res.body[0].userId).to.eql(expectedSolution.userId)
-            expect(res.body[0].content).to.eql(expectedSolution.content)
+            expect(res.body.categoryId).to.eql(expectedSolution.categoryId);
+            expect(res.body.userId).to.eql(expectedSolution.userId)
+            expect(res.body.content).to.eql(expectedSolution.content)
           });
       });
     })
@@ -224,9 +234,15 @@ describe('Solutions Endpoints', function () {
 
         beforeEach('insert solution', () => {
           return db
-            .into('solutions')
-            .insert(testSolution);
-        })
+            .into('categories')
+            .insert(testCategory)
+            .then(() => {
+              return db
+                .into('solutions')
+                .insert(testSolution);
+              })
+            })
+              
 
         it('responds with 204 and removes the solution', () => {
           const idToRemove = 2
@@ -257,11 +273,16 @@ describe('Solutions Endpoints', function () {
 
       context('Given there are solutions in the database', () => {
         const testSolution = makeSolutionsArray()
-
+        const testCategory = makeCategoriesArray()
         beforeEach('insert solutions', () => {
           return db
-            .into('solutions')
-            .insert(testSolution)
+            .into('categories')
+            .insert(testCategory)
+            .then(() => {
+              return db
+                .into('solutions')
+                .insert(testSolution);
+            })
         })
 
         it('responds with 204 and updates the solution', () => {
@@ -295,12 +316,12 @@ describe('Solutions Endpoints', function () {
             .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
             .expect(400, {
               error: {
-                message: `Request body must contain 'categoryId', userId', and 'content'`
+                message: `Request body must contain 'categoryId', 'userId', 'content'`
               }
             })
         })
 
-        it(`responds with 204 when updating only a subset of fields`, () => {
+        it.only(`responds with 204 when updating only a subset of fields`, () => {
           const idToUpdate = 2
           const updateSolution = {
             name: 'updated solution name',

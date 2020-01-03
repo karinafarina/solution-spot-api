@@ -4,7 +4,7 @@ const xss = require('xss');
 
 const SolutionsService = require('./solutions-service');
 
-const solutionRouter = express.Router();
+const solutionsRouter = express.Router();
 const jsonParser = express.json();
 
 const serializeSolution = solution => ({
@@ -15,7 +15,7 @@ const serializeSolution = solution => ({
   modified: solution.modified
 })
 
-solutionRouter
+solutionsRouter
   //route needs to match client route
   .route('/')
   .get((req, res, next) => {
@@ -23,14 +23,13 @@ solutionRouter
       .then(solutions => {
         res.json(solutions.map(serializeSolution))
       })
-
       .catch(next)
   })
 
 
   .post(jsonParser, (req, res, next) => {
-    const { categoryId, userName, content } = req.body
-    const newSolution = { categoryId, userName, content }
+    const { categoryId, userId, content } = req.body
+    const newSolution = { categoryId, userId, content }
 
     for (const [key, value] of Object.entries(newSolution))
       if (value == null)
@@ -52,7 +51,7 @@ solutionRouter
       .catch(next)
   })
 
-solutionRouter
+solutionsRouter
   .route('/:solutionId')
   .all((req, res, next) => {
     const { solutionId } = req.params;
@@ -84,14 +83,14 @@ solutionRouter
       .catch(next)
   })
   .patch(jsonParser, (req, res, next) => {
-    const { categoryId, userName, content } = req.body
-    const solutionToUpdate = { categoryId, userName, content }
+    const { categoryId, userId, content } = req.body
+    const solutionToUpdate = { categoryId, userId, content }
 
     const numberOfValues = Object.values(solutionToUpdate).filter(Boolean).length
     if (numberOfValues === 0)
       return res.status(400).json({
         error: {
-          message: `Request body must contain 'categoryId', 'userName', 'content'`
+          message: `Request body must contain 'categoryId', 'userId', 'content'`
         }
       })
     SolutionsService.updateSolution(
@@ -109,4 +108,4 @@ solutionRouter
 
 
 
-module.exports = solutionRouter;
+module.exports = solutionsRouter;
