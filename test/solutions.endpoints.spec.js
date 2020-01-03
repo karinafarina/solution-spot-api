@@ -23,7 +23,7 @@ describe('Solutions Endpoints', function () {
   afterEach('cleanup', () =>
     db.raw('TRUNCATE solutions, categories RESTART IDENTITY CASCADE')
   )
-  describe.only('GET /api/solutions', () => {
+  describe('GET /api/solutions', () => {
     context('Given no solutions', () => {
       it('responds with 200 and an empty list', () => {
         return supertest(app)
@@ -33,7 +33,7 @@ describe('Solutions Endpoints', function () {
       })
     })
 
-    context.only('Given there are solutions', () => {
+    context('Given there are solutions', () => {
       const testSolution = makeSolutionsArray()
       const testCategory = makeCategoriesArray()
 
@@ -48,7 +48,7 @@ describe('Solutions Endpoints', function () {
           })
       })
       // FIX LATER FIGURE OUT WHY COLUMN CATEGORYID OF RELATION SOLUTIONS DOES NOT EXIST
-      it('responds with 200 and all of the solutions', () => {
+      it.only('responds with 200 and all of the solutions', () => {
         return supertest(app)
           .get('/api/solutions')
           .expect(200, testSolution)
