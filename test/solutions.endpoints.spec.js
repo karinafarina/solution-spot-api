@@ -131,7 +131,7 @@ describe('Solutions Endpoints', function () {
             .then(() => {
               return db
                 .into('solutions')
-                .insert([maliciousSolution])
+                .insert(maliciousSolution)
             })
         })
 
@@ -140,6 +140,7 @@ describe('Solutions Endpoints', function () {
             .get(`/api/solutions/${maliciousSolution.id}`)
             .expect(200)
             .expect(res => {
+              console.log('res.body', res.body.categoryId, expectedSolution.categoryId)
               expect(res.body.categoryId).to.eql(expectedSolution.categoryId)
               expect(res.body.userId).to.eql(expectedSolution.userId)
               expect(res.body.content).to.eql(expectedSolution.content)
@@ -148,22 +149,22 @@ describe('Solutions Endpoints', function () {
       })
     })
     describe('POST /api/solutions', () => {
-      const testSolution = makeSolutionsArray();
+      // const testSolution = makeSolutionsArray();
       const testCategory = makeCategoriesArray();
 
-      before('insert related category', () => {
+      beforeEach('insert related category', () => {
         return db
           .into('categories')
           .insert(testCategory)
       })
 
-      // ASK ABOUT BAD REQUEST
       it('creates a solution, reponding with 201 and the new solution', () => {
         const newSolution = {
           categoryId: 4,
           userId: 1,
           content: 'test content'
         }
+
         return supertest(app)
           .post('/api/solutions')
           .send(newSolution)
@@ -184,6 +185,7 @@ describe('Solutions Endpoints', function () {
               .expect(res.body)
           )
       })
+
       //Ask Jeremy
       const requiredFields = ['categoryId', 'userId', 'content'];
 
@@ -206,6 +208,8 @@ describe('Solutions Endpoints', function () {
       })
 
       it('removes XSS attack content from response', () => {
+        console.log('test cat', testCategory)
+
         const { maliciousSolution, expectedSolution } = makeMaliciousSolution()
         return supertest(app)
           .post('/api/solutions')
@@ -231,6 +235,7 @@ describe('Solutions Endpoints', function () {
       })
       context('Given there are solutions in the database', () => {
         const testSolution = makeSolutionsArray();
+        const testCategory = makeCategoriesArray()
 
         beforeEach('insert solution', () => {
           return db
@@ -321,10 +326,10 @@ describe('Solutions Endpoints', function () {
             })
         })
 
-        it.only(`responds with 204 when updating only a subset of fields`, () => {
+        it(`responds with 204 when updating only a subset of fields`, () => {
           const idToUpdate = 2
           const updateSolution = {
-            name: 'updated solution name',
+            content: 'Updated content',
           }
           const expectedSolution = {
             ...testSolution[idToUpdate - 1],
