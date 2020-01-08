@@ -9,6 +9,7 @@ const SolutionsService = {
       .into('solutions')
       .returning('*')
       .then(rows => {
+        console.log('solution rows', rows)
         return rows[0]
       });
   },

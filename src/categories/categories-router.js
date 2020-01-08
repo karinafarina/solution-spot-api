@@ -38,7 +38,6 @@ categoryRouter
       newCategory
     )
     .then(category => {
-      console.log('req.originalUrl', req.originalUrl)
       res
         .status(201)
         .location(path.posix.join(req.originalUrl, `/${category.id}`))
@@ -95,7 +94,6 @@ categoryRouter
         categoryToUpdate
       )
       .then(numRowsAffected => {
-        console.log('numrows', numRowsAffected)
         res.status(204).end()
       })
       .catch(next)

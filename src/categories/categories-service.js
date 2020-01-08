@@ -9,7 +9,6 @@ const CategoryService = {
       .into('categories')
       .returning('*')
       .then(rows => {
-        console.log('category rows', rows)
         return rows[0]
       });
   },

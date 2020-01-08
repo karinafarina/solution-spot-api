@@ -1,6 +1,6 @@
 
 
-INSERT INTO solutions (categoryId, userId, content)
+INSERT INTO solutions ("categoryId", "userId", content)
 VALUES
   (2, 2, 'I think we should make people take a test similar to a driving test to operate a leathal weapon.'),
   (4, 2, 'In order to lower the rate of babies that are born addicted to drugs and alchohol, those not ready for children could be offered a monthly monetery incentive to have some form of birth control. This would also cut down on welfare costs.'),

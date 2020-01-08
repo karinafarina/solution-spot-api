@@ -42,7 +42,6 @@ solutionsRouter
       newSolution
     )
       .then(solution => {
-        console.log('req.originalUrl', req.originalUrl)
         res
           .status(201)
           .location(path.posix.join(req.originalUrl, `/${solution.id}`))
@@ -99,7 +98,6 @@ solutionsRouter
       solutionToUpdate
     )
       .then(numRowsAffected => {
-        console.log('numrows', numRowsAffected)
         res.status(204).end()
       })
       .catch(next)
