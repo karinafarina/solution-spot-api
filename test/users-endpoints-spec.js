@@ -64,8 +64,6 @@ describe('Users Endpoints', function() {
           })
       })
     })
-
-
   })
 
   describe('GET /api/users/:userId', () => {

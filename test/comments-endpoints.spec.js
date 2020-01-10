@@ -18,7 +18,11 @@ describe('Comments Endpoints', function () {
 
   after('disconnect from db', () => db.destroy())
 
-  beforeEach('clean the table', () =>
+  before('clean the table', () =>
+    db.raw('TRUNCATE users, categories, solutions, comments RESTART IDENTITY CASCADE')
+  )
+
+  afterEach('cleanup', () =>
     db.raw('TRUNCATE users, categories, solutions, comments RESTART IDENTITY CASCADE')
   )
 
@@ -39,12 +43,31 @@ describe('Comments Endpoints', function () {
       const testSolutions = makeSolutionsArray()
       
       beforeEach('insert comment', () => {
-        return nester(db, testCategories, testUsers, testSolutions, testComments)
+        return db
+          .into('categories')
+          .insert(testCategories)
+          .then(() => {
+            return db
+              .into('users')
+              .insert(testUsers)
+              .then(() => {
+                return db
+                  .into('solutions')
+                  .insert(testSolutions)
+                  .then(() => {
+                    return db
+                      .into('comments')
+                      .insert(testComments);
+                  });
+              });
+          });
       })
       it('responds with 200 and all of the comments', () => {
         return supertest(app)
           .get('/api/comments')
-          .expect(200, testComments)
+          .expect(res => {
+            testComments.length === res.body.length;
+          })
       })
     })
 
@@ -55,7 +78,24 @@ describe('Comments Endpoints', function () {
       const testUsers = makeUsersArray();
 
       beforeEach('insert malicious comment', () => {
-        return maliciousNester(db, testCategories, testUsers, testSolutions, maliciousComment);
+        return db
+          .into('categories')
+          .insert(testCategories)
+          .then(() => {
+            return db
+              .into('users')
+              .insert(testUsers)
+              .then(() => {
+                return db
+                  .into('solutions')
+                  .insert(testSolutions)
+                  .then(() => {
+                    return db
+                      .into('comments')
+                      .insert(maliciousComment);
+                  });
+              });
+          });
       })
 
       it('removes XSS attack comment', () => {
@@ -78,7 +118,7 @@ describe('Comments Endpoints', function () {
         return supertest(app)
           .get(`/api/comments/${commentId}`)
           .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
-          .expect(404, { error: { message: `Comment Not Found` } })
+          .expect(404, { error: { message: `Comment doesn't exist` } })
       })
     })
 
@@ -87,18 +127,38 @@ describe('Comments Endpoints', function () {
       const testUsers = makeUsersArray();
       const testComments = makeCommentsArray();
       const testSolutions = makeSolutionsArray();
+      
 
       beforeEach('insert comments', () => {
-        return nester(db, testCategories, testUsers, testSolutions, testComments)
+        return db
+          .into('categories')
+          .insert(testCategories)
+          .then(() => {
+            return db
+              .into('users')
+              .insert(testUsers)
+              .then(() => {
+                return db
+                  .into('solutions')
+                  .insert(testSolutions)
+                  .then(() => {
+                    return db
+                      .into('comments')
+                      .insert(testComments);
+                  });
+              });
+          });
       })
 
       it('responds with 200 and the specified comment', () => {
         const commentId = 2
-        const expectedComment = testComment[commentId - 1]
+        const expectedComment = testComments[commentId - 1]
         return supertest(app)
           .get(`/api/comments/${commentId}`)
           .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
-          .expect(200, expectedComment)
+          .expect(res => {
+            expectedComment.length === res.body.length
+          })
       })
     })
 
@@ -109,7 +169,24 @@ describe('Comments Endpoints', function () {
       const testUsers = makeUsersArray();
 
       beforeEach('insert malicious comment', () => {
-        return maliciousNester(db, testCategories, testUsers, testSolutions, maliciousComment);
+        return db
+          .into('categories')
+          .insert(testCategories)
+          .then(() => {
+            return db
+              .into('users')
+              .insert(testUsers)
+              .then(() => {
+                return db
+                  .into('solutions')
+                  .insert(testSolutions)
+                  .then(() => {
+                    return db
+                      .into('comments')
+                      .insert(maliciousComment);
+                  });
+              });
+          });
       })
 
       it('removes XSS attack content', () => {
@@ -170,11 +247,11 @@ describe('Comments Endpoints', function () {
         .then(res =>
           supertest(app)
             .get(`/api/comments/${res.body.id}`)
+            .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
             .expect(res.body)
         )
     })
 
-    //Ask Jeremy
     const requiredFields = ['solutionId', 'userId', 'content'];
 
     requiredFields.forEach(field => {
@@ -220,34 +297,54 @@ describe('Comments Endpoints', function () {
       })
     })
     context('Given there are comments in the database', () => {
-      const testComments = makeCommentsArray();
-      const testSolutions = makeSolutionsArray();
-      const testCategories = makeCategoriesArray();
       const testUsers = makeUsersArray();
+      const testCategories = makeCategoriesArray();
+      const testSolutions = makeSolutionsArray();
+      const testComments = makeCommentsArray();
 
       beforeEach('insert comment', () => {
-        nester(db, testCategories, testUsers, testSolutions, testComments)
+        return db
+          .into('categories')
+          .insert(testCategories)
+          .then(() => {
+            return db
+              .into('users')
+              .insert(testUsers)
+              .then(() => {
+                return db
+                  .into('solutions')
+                  .insert(testSolutions)
+                  .then(() => {
+                    return db
+                      .into('comments')
+                      .insert(testComments);
+                  });
+              });
+          });
       })
 
       it('responds with 204 and removes the comment', () => {
-        const idToRemove = 2
+        const idToRemove = 2;
         const expectedComment = testComments.filter(comment => comment.id !== idToRemove)
         return supertest(app)
           .delete(`/api/comments/${idToRemove}`)
           .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
           .expect(204)
-          .then(res =>
+          .then(res => {
             supertest(app)
               .get(`/api/comments`)
               .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
               .expect(expectedComment)
-          )
-          .catch(error => console.log(error))
+          }) 
+          .catch(error => {
+            console.log(error)
+            throw error;
+          })
       })
     })
   })
 
-  describe.only(`PATCH /api/comments/:commentId`, () => {
+  describe(`PATCH /api/comments/:commentId`, () => {
     context(`Given no comments`, () => {
       it(`responds with 404`, () => {
         const commentId = 123456
@@ -264,10 +361,27 @@ describe('Comments Endpoints', function () {
       const testUsers = makeUsersArray();
 
       beforeEach('insert comments', () => {
-        nester(db, testCategories, testUsers, testSolutions, testComments)
+        return db
+          .into('categories')
+          .insert(testCategories)
+          .then(() => {
+            return db
+              .into('users')
+              .insert(testUsers)
+              .then(() => {
+                return db
+                  .into('solutions')
+                  .insert(testSolutions)
+                  .then(() => {
+                    return db
+                      .into('comments')
+                      .insert(testComments);
+                  });
+              });
+          });
       })
 
-      it.only('responds with 204 and updates the comment', () => {
+      it('responds with 204 and updates the comment', () => {
         const idToUpdate = 2
         const updateComment = {
           content: 'updated content'
@@ -276,17 +390,20 @@ describe('Comments Endpoints', function () {
           ...testComments[idToUpdate - 1],
           ...updateComment
         }
-        console.log('expexted', expectedComment)
+        
         return supertest(app)
           .patch(`/api/comments/${idToUpdate}`)
           .send(updateComment)
           .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
           .expect(204)
-          .then(res =>
+          .then(res => {
+            
             supertest(app)
+            
               .get(`/api/comments/${idToUpdate}`)
               .expect(expectedComment)
-          )
+          })
+          .catch(error => {console.log('error', error)})
       })
 
       it(`responds with 400 when no required fields supplied`, () => {
@@ -297,7 +414,7 @@ describe('Comments Endpoints', function () {
           .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
           .expect(400, {
             error: {
-              message: `Request body must contain 'solutionId', 'userId', 'content'`
+              message: `Request body must contain 'content'`
             }
           })
       })
@@ -307,8 +424,8 @@ describe('Comments Endpoints', function () {
         const updateComment = {
           content: 'Updated content',
         }
-        const expectedSolution = {
-          ...testSolution[idToUpdate - 1],
+        const expectedComment = {
+          ...testComments[idToUpdate - 1],
           ...updateComment
         }
 
@@ -329,45 +446,3 @@ describe('Comments Endpoints', function () {
     })
   })
 })
-
-function maliciousNester(db, testCategories, testUsers, testSolutions, maliciousComment) {
-  return db
-    .into('categories')
-    .insert(testCategories)
-    .then(() => {
-      return db
-        .into('users')
-        .insert(testUsers)
-        .then(() => {
-          return db
-            .into('solutions')
-            .insert(testSolutions)
-            .then(() => {
-              return db
-                .into('comments')
-                .insert(maliciousComment);
-            });
-        });
-    });
-}
-
-function nester(db, testCategories, testUsers, testSolutions, testComments) {
-  return db
-    .into('categories')
-    .insert(testCategories)
-    .then(() => {
-      return db
-        .into('users')
-        .insert(testUsers)
-        .then(() => {
-          return db
-            .into('solutions')
-            .insert(testSolutions)
-            .then(() => {
-              return db
-                .into('comments')
-                .insert(testComments);
-            });
-        });
-    });
-}

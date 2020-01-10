@@ -38,7 +38,6 @@ commentsRouter
       newComment
     )
       .then(comment => {
-        console.log('new comment', comment)
         res
           .status(201)
           .location(path.posix.join(req.originalUrl, `/${comment.id}`))
@@ -50,38 +49,38 @@ commentsRouter
 commentsRouter
   .route('/:commentId')
   .all((req, res, next) => {
-    CommentsService.getById(
-      req.app.get('db'),
-      req.params.comment_id
-    )
+    const { commentId } = req.params;
+    const knexInstance = req.app.get('db')
+    CommentsService.getById(knexInstance, commentId)
       .then(comment => {
         if (!comment) {
           return res.status(404).json({
             error: { message: `Comment doesn't exist` }
-          })
+          });
         }
         res.comment = comment
         next()
       })
-      .catch(next)
+      .catch(next);
   })
-  .get((req, res, next) => {
+  .get((req, res) => {
     res.json(serializeComment(res.comment))
   })
   .delete((req, res, next) => {
-    CommentsService.deleteComment(
-      req.app.get('db'),
-      req.params.comment_id
-    )
+    const { commentId } = req.params
+    const knexInstance = req.app.get('db');
+    CommentsService.deleteComment(knexInstance, commentId)
       .then(numRowsAffected => {
-        res.status(204).end()
+        res.status(204).json({
+          message: true
+        })
       })
       .catch(next)
   })
   .patch(jsonParser, (req, res, next) => {
     const { content } = req.body
     const commentToUpdate = { content }
-
+    console.log('comment to update', commentToUpdate)
     const numberOfValues = Object.values(commentToUpdate).filter(Boolean).length
     if (numberOfValues === 0) 
       return res.status(400).json({
@@ -95,10 +94,10 @@ commentsRouter
       req.params.commentId,
       commentToUpdate
     )
-    .then(numRowsAffected => {
-      res.status(204).end()
+      .then(numRowsAffected => {
+        res.status(204).end()
+      })
+      .catch(next)
     })
-    .catch(next)
-  })
 
-module.exports = commentsRouter
+module.exports = commentsRouter;
