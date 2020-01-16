@@ -7,10 +7,12 @@ const UsersService = require('./users-service');
 const userRouter = express.Router();
 const jsonParser = express.json();
 
+//JWT
 const serializeUser = user => ({
   id: user.id,
   userName: xss(user.userName),
   email: xss(user.email),
+  //drop userpassword
   userPassword: xss(user.userPassword)
 })
 

@@ -24,6 +24,15 @@ const UsersService = {
       .first()
   },
 
+  getByEmail(knex, email) {
+    assert(email, 'The email is required by email')
+    return knex
+      .from('users')
+      .select('*')
+      .where('email', email)
+      .first()
+  },
+
   deleteUser(knex, user_id) {
     return knex('users')
       .where('id', parseInt(user_id, 10))
