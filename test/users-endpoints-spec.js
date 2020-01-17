@@ -109,7 +109,7 @@ describe('Users Endpoints', function() {
       return supertest(app)
         .post('/api/users')
         .send(newUser)
-        .expect(201)
+        .expect(201)//then
         .expect(res => {
           expect(res.body.userName).to.eql(newUser.userName)
           expect(res.body.email).to.eql(newUser.email)
@@ -150,7 +150,6 @@ describe('Users Endpoints', function() {
         .send(maliciousUser)
         .expect(201)
         .expect(res => {
-          console.log('response', res.body.userPassword, expectedUser.userPassword)
           expect(res.body.userName).to.eql(expectedUser.userName);
           expect(res.body.email).to.eql(expectedUser.email);
           expect(res.body.userPassword).to.eql(expectedUser.userPassword);
@@ -275,6 +274,7 @@ describe('Users Endpoints', function() {
           .then(res => 
               supertest(app)
                 .get(`/api/users/${idToUpdate}`)
+                .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
                 .expect(expectedUser)
             )
       })

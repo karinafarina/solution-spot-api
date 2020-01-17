@@ -80,7 +80,6 @@ commentsRouter
   .patch(jsonParser, (req, res, next) => {
     const { content } = req.body
     const commentToUpdate = { content }
-    console.log('comment to update', commentToUpdate)
     const numberOfValues = Object.values(commentToUpdate).filter(Boolean).length
     if (numberOfValues === 0) 
       return res.status(400).json({

@@ -1,4 +1,7 @@
-const assert = require('assert');
+//const assert = require('assert');
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+const config = require('../config')
 
 const UsersService = {
   getAllUsers(knex) {
@@ -25,12 +28,23 @@ const UsersService = {
   },
 
   getByEmail(knex, email) {
-    assert(email, 'The email is required by email')
+    //assert(email, 'The email is required by email')
     return knex
       .from('users')
       .select('*')
-      .where('email', email)
+      .where({ email })
       .first()
+  },
+
+  comparePasswords(userPassword, hash) {
+    return bcrypt.compare(userPassword, hash)
+  },
+
+  createJwt(subject, payload) {
+    return jwt.sign(payload, config.JWT_SECRET, {
+      subject,
+      algorithm: 'HS256',
+    })
   },
 
   deleteUser(knex, user_id) {

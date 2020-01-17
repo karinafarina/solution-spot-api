@@ -1,13 +1,11 @@
 function makeUsersArray() {
   return [
     {
-      id: 1,
       "userName": "Fred Streeby",
       email: "fredstreeby@gmail.com",
       "userPassword": "12345"
     },
     {
-      id: 2,
       "userName": "Matt Brady",
       email: "matbrady@gmail.com",
       "userPassword": "67889"

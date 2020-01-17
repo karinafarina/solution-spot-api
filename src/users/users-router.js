@@ -1,13 +1,16 @@
 const path = require('path');
 const express = require('express');
 const xss = require('xss');
+const bcrypt = require('bcryptjs')
 
 const UsersService = require('./users-service');
 
 const userRouter = express.Router();
 const jsonParser = express.json();
 
-//JWT
+hashPassword(userPassword) {
+  return bcrypt.hash(userPassword, 12)
+},
 const serializeUser = user => ({
   id: user.id,
   userName: xss(user.userName),
@@ -26,6 +29,7 @@ userRouter
       })
   })
 
+  //HASH PASSWORD FROM USER REGISTRATION
   .post(jsonParser, (req, res, next) => {
     const { userName, email, userPassword } = req.body;
     const newUser = { userName, email, userPassword };
