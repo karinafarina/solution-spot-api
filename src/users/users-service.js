@@ -19,7 +19,6 @@ const UsersService = {
   },
 
   getById(knex, user_id) {
-    assert(user_id, 'The id is required by getbyid')
     return knex
       .from('users')
       .select('*')
@@ -28,7 +27,6 @@ const UsersService = {
   },
 
   getByEmail(knex, email) {
-    //assert(email, 'The email is required by email')
     return knex
       .from('users')
       .select('*')
@@ -38,6 +36,10 @@ const UsersService = {
 
   comparePasswords(userPassword, hash) {
     return bcrypt.compare(userPassword, hash)
+  },
+
+  hashPassword(userPassword) {
+    return bcrypt.hash(userPassword, 12)
   },
 
   createJwt(subject, payload) {

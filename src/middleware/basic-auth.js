@@ -11,31 +11,23 @@ function requireAuth(req, res, next) {
     basicToken = authToken.slice('basic '.length, authToken.length)
   }
 
-  const [tokenUserName, tokenPassword] = UsersService.parseBasicToken(basicToken)
+  const [tokenEmail, tokenPassword] = UsersService.parseBasicToken(basicToken)
 
-  if (!tokenUserName || !tokenPassword) {
+  if (!tokenEmail || !tokenPassword) {
     return res.status(401).json({ error: 'Unauthorized request' })
   }
 
   UsersService.getByEmail(
     req.app.get('db'),
-    tokenUserName
+    tokenEmail
   )
     .then(user => {
-      if (!user) {
+      if (!user || user.userPassword !== tokenPassword) {
         return res.status(401).json({ error: 'Unauthorized request' })
       }
-
-      //return bcrypt.compare(tokenPassword, user.password)
-      return UsersService.comparePasswords(tokenPassword, user.userPassword)
-        .then(passwordsMatch => {
-          if (!passwordsMatch) {
-            return res.status(401).json({ error: 'Unauthorized request' })
-          }
-
-          req.user = user
-          next()
-        })
+      
+      req.user = user
+      next()
     })
     .catch(next)
 }

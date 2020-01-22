@@ -1,7 +1,6 @@
 const express = require('express');
 //const xss = require('xss');
-
-//const bcrypt = require('bcryptjs');
+const bcrypt = require('bcryptjs');
 const UsersService = require('../users/users-service');
 
 const authenticationRouter = express.Router();
@@ -10,7 +9,6 @@ const jsonParser = express.json();
 //JWT
 // const serializeUser = user => ({
 //   id: user.id,
-//   userName: xss(user.userName),
 //   email: xss(user.email),
 //   //drop userpassword
 //   userPassword: xss(user.userPassword)
@@ -38,9 +36,9 @@ authenticationRouter
           return res.status(400).json({ 
             error: 'Incorrect email or password'
           })
-
           return UsersService.comparePasswords(loginUser.userPassword, user.userPassword)
             .then(compareMatch => {
+              console.log('logs', loginUser.userPassword, user.userPassword, compareMatch)
               if(!compareMatch)
                 return res.status(400).json({
                   error: 'Incorrect email or password',
@@ -53,7 +51,7 @@ authenticationRouter
             })
         })
         .catch(next)
-
+      })
       //   return bcrypt.compare(tokenPassword, user.userPassword)
       //     .then(passwordsMatch => {
       //       if(!passwordsMatch) {
@@ -63,9 +61,10 @@ authenticationRouter
       //       req.user = user
       //       next()
       //     })
+      //     .catch(next)
       // })
-      // .catch(next)
-  })
+      
+
 
 
 module.exports = authenticationRouter;

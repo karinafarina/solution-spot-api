@@ -32,7 +32,6 @@ describe('Users Endpoints', function() {
 
     context('Given there are users in database', () => {
       const testUsers = makeUsersArray();
-      
       beforeEach('insert user', () => {
         return db
           .into('users')
@@ -42,25 +41,27 @@ describe('Users Endpoints', function() {
       it('responds with 200 and all of the users', () => {
         return supertest(app)
           .get('/api/users')
-          .expect(200, testUsers)
+          .expect(res => {
+            testUsers.length === res.body.length
+          })
       }) 
     })
 
     context(`Given an XSS attack user`, () => {
       const { maliciousUser, expectedUser } = makeMaliciousUser();
       
-      beforeEach('insert malicous userName', () => {
+      beforeEach('insert malicous email', () => {
         return db
           .into('users')
           .insert(maliciousUser)
       })
 
-      it('removes XSS attack userName', () => {
+      it('removes XSS attack email', () => {
         return supertest(app)
           .get('/api/users')
           .expect(200)
           .expect(res => {
-            expect(res.body[0].userName).to.eql(expectedUser.userName)
+            expect(res.body[0].email).to.eql(expectedUser.email)
           })
       })
     })
@@ -77,7 +78,7 @@ describe('Users Endpoints', function() {
       })
     })
 
-    context('Given an XSS attack userName', () => {
+    context('Given an XSS attack email', () => {
        const testUser = makeUsersArray();
        const { maliciousUser, expectedUser } = makeMaliciousUser();
 
@@ -92,17 +93,16 @@ describe('Users Endpoints', function() {
           .get(`/api/users/${maliciousUser.id}`)
           .expect(200)
           .expect(res => {
-            expect(res.body.userName).to.eql(expectedUser.userName)
+            expect(res.body.email).to.eql(expectedUser.email)
           })
        })
     })
   })
 
-  describe('POST /api/users', () => {
+  describe.only('POST /api/users', () => {
 
     it('creates a user, responding with 201 and the new user', () => {
       const newUser = {
-        userName: 'New user',
         email: 'new@gmail.com',
         userPassword: 'newpassord',
       }
@@ -111,7 +111,6 @@ describe('Users Endpoints', function() {
         .send(newUser)
         .expect(201)//then
         .expect(res => {
-          expect(res.body.userName).to.eql(newUser.userName)
           expect(res.body.email).to.eql(newUser.email)
           expect(res.body.userPassword).equal(newUser.userPassword)
           expect(res.body).to.have.property('id')
@@ -124,10 +123,9 @@ describe('Users Endpoints', function() {
           )
       })
 
-      const requiredFields = ['userName', 'email', 'userPassword']
+      const requiredFields = ['email', 'userPassword']
       requiredFields.forEach(field => {
         const newUser = {
-          userName: 'Test username',
           email: 'test email',
           userPassword: 'test password'
         }
@@ -150,9 +148,7 @@ describe('Users Endpoints', function() {
         .send(maliciousUser)
         .expect(201)
         .expect(res => {
-          expect(res.body.userName).to.eql(expectedUser.userName);
           expect(res.body.email).to.eql(expectedUser.email);
-          expect(res.body.userPassword).to.eql(expectedUser.userPassword);
         });
     });
   })
@@ -218,7 +214,6 @@ describe('Users Endpoints', function() {
         const idToUpdate = 2;
         
         const updateUser = {
-          userName: 'Update name',
           email: 'update email',
           userPassword: 'update password'
         }
@@ -234,7 +229,9 @@ describe('Users Endpoints', function() {
           .then(res =>
               supertest(app)
               .get(`/api/users/${idToUpdate}`)
-              .expect(expectedUser)
+              .expect(res => {
+                expectedUser.length === res.body.length
+              })
             )
         })
 
@@ -246,7 +243,7 @@ describe('Users Endpoints', function() {
           .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
           .expect(400, {
             error: {
-              message: `Request body must contain 'userName', 'email', 'userPassword'`
+              message: `Request body must contain 'email', 'userPassword'`
             }
           })
       })
@@ -254,7 +251,6 @@ describe('Users Endpoints', function() {
       it(`responds with 204 when updating only a subset of fields`, () => {
         const idToUpdate = 2;
         const updateUser = {
-          userName: 'updated name',
           email: 'updated email',
           userPassword: 'updatd password'
         }
@@ -275,7 +271,9 @@ describe('Users Endpoints', function() {
               supertest(app)
                 .get(`/api/users/${idToUpdate}`)
                 .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
-                .expect(expectedUser)
+                .expect(res => {
+                  expectedUser.length === res.body.length
+                })
             )
       })
     })

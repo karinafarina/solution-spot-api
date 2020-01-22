@@ -1,13 +1,19 @@
 const knex = require('knex');
 const app = require('../src/app');
 const { makeUsersArray } = require('./users.fixtures.js');
-const { makeSolutionsArray, makeMaliciousSolution } = require('./solutions.fixtures.js');
+const { makeCommentsArray, makeMaliciousComment } = require('./comments.fixtures.js');
+const { makeSolutionsArray, seedSolutionsTables, makeExpectedSolutionComments, makeMaliciousSolution } = require('./solutions.fixtures.js');
 const { makeCategoriesArray } = require('./categories.fixtures');
 // const { makeCommentsArray } = require('./comments.fixtures');
 
 
 describe('Solutions Endpoints', function() {
   let db;
+
+  const testUsers = makeUsersArray();
+  const testSolutions = makeSolutionsArray()
+  const testCategories = makeCategoriesArray();
+  const testComments = makeCommentsArray();
 
   before('make knex instance', () => {
     db = knex({
@@ -37,10 +43,7 @@ describe('Solutions Endpoints', function() {
     })
 
     context('Given there are solutions', () => {
-      const testUsers = makeUsersArray();
-      const testSolutions = makeSolutionsArray()
-      const testCategories = makeCategoriesArray();
-      //const testComments = makeCommentsArray();
+      
       beforeEach('insert solutions', () => {
         return db
           .into('categories')
@@ -64,19 +67,16 @@ describe('Solutions Endpoints', function() {
     })
 
     context(`Given an XSS attack solution`, () => {
-      const testUser = makeUsersArray()
       const { maliciousSolution, expectedSolution } = makeMaliciousSolution()
-      const testCategory = makeCategoriesArray();
-      // const testComments = makeCommentsArray();
 
       beforeEach('insert malicious solution', () => {
         return db
           .into('categories')
-          .insert(testCategory)
+          .insert(testCategories)
           .then(() => {
             return db
               .into('users')
-              .insert(testUser)
+              .insert(testUsers)
               .then(() => {
                 return db
                 .into('solutions')
@@ -99,8 +99,11 @@ describe('Solutions Endpoints', function() {
     })
   })
 
-  describe('GET /api/solutions/:solutionId', () => {
+  describe.only('GET /api/solutions/:solutionId', () => {
     context('Given no solutions', () => {
+      // beforeEach(() =>
+      //   seedSolutionsTables(db, testUsers)
+      // )
       it('responds with 404', () => {
         const solutionId = 123456
         return supertest(app)
@@ -111,14 +114,11 @@ describe('Solutions Endpoints', function() {
     })
 
     context('Given there are solutions in database', () => {
-      const testUsers = makeUsersArray();
-      const testCategory = makeCategoriesArray();
-      const testSolution = makeSolutionsArray()
 
       beforeEach('insert solutions', () => {
         return db
           .into('categories')
-          .insert(testCategory)
+          .insert(testCategories)
           .then(() => {
             return db
               .into('users')
@@ -126,14 +126,14 @@ describe('Solutions Endpoints', function() {
               .then(() => {
                 return db
                 .into('solutions')
-                .insert(testSolution)
+                .insert(testSolutions)
               })
             })
       })
 
       it('responds with 200 and the specified solution', () => {
         const solutionId = 2
-        const expectedSolution = testSolution[solutionId - 1]
+        const expectedSolution = testSolutions[solutionId - 1]
         return supertest(app)
           .get(`/api/solutions/${solutionId}`)
           .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
@@ -142,15 +142,12 @@ describe('Solutions Endpoints', function() {
     })
 
     context('Given an XSS attack solution', () => {
-      const testUsers = makeUsersArray();
-      const testCategory = makeCategoriesArray();
-      // const testSolution = makeSolutionsArray()
       const { maliciousSolution, expectedSolution } = makeMaliciousSolution()
 
       beforeEach('insert malicious solution', () => {
         return db
           .into('categories')
-          .insert(testCategory)
+          .insert(testCategories)
           .then(() => {
             return db
               .into('users')
@@ -176,14 +173,99 @@ describe('Solutions Endpoints', function() {
     })
   })
 
+  describe('GET /api/solutions/:solutionId/comments', () => {
+    context('Given no solutions', () => {
+      beforeEach(() =>
+        db.into('users').insert(testUsers)
+      )
+
+      it('responds with 404', () => {
+        const solutionId = 123456;
+        return supertest(app)
+          .get(`/api/solutions/${solutionId}/comments`)
+          .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+          .expect(404, { error: {
+            "message": "Solution Not Found"
+          }
+        })
+      })
+    })
+
+    context('Given there are comments for solution', () => {
+      beforeEach('insert solutions', () => {
+        return db
+          .into('categories')
+          .insert(testCategories)
+          .then(() => {
+            return db
+              .into('users')
+              .insert(testUsers)
+              .then(() => {
+                return db
+                  .into('solutions')
+                  .insert(testSolutions)
+                  .then(() => {
+                    return db
+                      .into('comments')
+                      .insert(testComments);
+                  });
+              });
+          });
+      })
+      it('responds with 200 and the specified comments', () => {
+        const solutionId = 1;
+        const expectedComments = makeExpectedSolutionComments(testUsers, solutionId, testComments)
+        return supertest(app)
+          .get(`/api/solutions/${solutionId}/comments`)
+          // .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+          .expect(200, expectedComments)
+      })
+    })
+
+    // context(`Given an XSS attack comment`, () => {
+    //   const { maliciousComment, expectedComment } = makeMaliciousComment()
+
+    //   beforeEach('insert malicious comment', () => {
+    //     return db
+    //       .into('categories')
+    //       .insert(testCategories)
+    //       .then(() => {
+    //         return db
+    //           .into('users')
+    //           .insert(testUsers)
+    //           .then(() => {
+    //             return db
+    //               .into('solutions')
+    //               .insert(testSolutions)
+    //               .then(() => {
+    //                 return db
+    //                   .into('comments')
+    //                   .insert(maliciousComment);
+    //               });
+    //           });
+    //       });
+    //   })
+
+    //   it('removes XSS attack comment', () => {
+    //     return supertest(app)
+    //       .get(`/api/${solutionId}/comments`)
+    //       .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+    //       .expect(200)
+    //       .expect(res => {
+    //         expect(res.body[0].solutionId).to.eql(expectedComment.solutionId)
+    //         expect(res.body[0].userId).to.eql(expectedComment.userId)
+    //         expect(res.body[0].content).to.eql(expectedComment.content)
+    //       })
+    //   })
+    // })
+  })
+
   describe('POST /api/solutions', () => {
-    const testUsers = makeUsersArray();
-    const testCategory = makeCategoriesArray();
 
     beforeEach('insert related category', () => {
       return db
         .into('categories')
-        .insert(testCategory)
+        .insert(testCategories)
         .then(() => {
           return db
             .into('users')
@@ -265,14 +347,11 @@ describe('Solutions Endpoints', function() {
       })
     })
     context('Given there are solutions in the database', () => {
-      const testUsers = makeUsersArray();
-      const testSolution = makeSolutionsArray();
-      const testCategory = makeCategoriesArray()
 
       beforeEach('insert solution', () => {
         return db
           .into('categories')
-          .insert(testCategory)
+          .insert(testCategories)
           .then(() => {
             return db
               .into('users')
@@ -280,14 +359,14 @@ describe('Solutions Endpoints', function() {
               .then(() => {
                 return db
                   .into('solutions')
-                  .insert(testSolution);
+                  .insert(testSolutions);
               })
           })
       })    
 
       it('responds with 204 and removes the solution', () => {
         const idToRemove = 2
-        const expectedSolution = testSolution.filter(solution => solution.id !== idToRemove)
+        const expectedSolution = testSolutions.filter(solution => solution.id !== idToRemove)
         return supertest(app)
           .delete(`/api/solutions/${idToRemove}`)
           .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
@@ -314,13 +393,11 @@ describe('Solutions Endpoints', function() {
     })
 
     context('Given there are solutions in the database', () => {
-      const testUsers = makeUsersArray();
-      const testSolution = makeSolutionsArray()
-      const testCategory = makeCategoriesArray()
+      
       beforeEach('insert solutions', () => {
         return db
           .into('categories')
-          .insert(testCategory)
+          .insert(testCategories)
           .then(() => {
             return db
               .into('users')
@@ -328,7 +405,7 @@ describe('Solutions Endpoints', function() {
               .then(() => {
                 return db
                   .into('solutions')
-                  .insert(testSolution);
+                  .insert(testSolutions);
               })
           })
       })
@@ -341,7 +418,7 @@ describe('Solutions Endpoints', function() {
           content: 'test content'
         }
         const expectedSolution = {
-          ...testSolution[idToUpdate - 1],
+          ...testSolutions[idToUpdate - 1],
           ...updateSolution
         }
         return supertest(app)
@@ -375,7 +452,7 @@ describe('Solutions Endpoints', function() {
           content: 'Updated content',
         }
         const expectedSolution = {
-          ...testSolution[idToUpdate - 1],
+          ...testSolutions[idToUpdate - 1],
           ...updateSolution
         }
 

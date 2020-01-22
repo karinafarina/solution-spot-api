@@ -1,5 +1,6 @@
 const path = require('path');
 const express = require('express');
+const { requireAuth } = require('../middleware/basic-auth')
 const xss = require('xss');
 
 const SolutionsService = require('./solutions-service');
@@ -25,7 +26,6 @@ solutionsRouter
       })
       .catch(next)
   })
-
 
   .post(jsonParser, (req, res, next) => {
     const { categoryId, userId, content } = req.body
@@ -103,7 +103,32 @@ solutionsRouter
       .catch(next)
   })
 
-
-
+  solutionsRouter
+    .route('/:solutionId/comments')
+    .all((req, res, next) => {
+      const { solutionId } = req.params;
+      const knexInstance = req.app.get('db')
+      SolutionsService.getById(knexInstance, solutionId)
+        .then(solution => {
+          if (!solution) {
+            return res.status(404).json({
+              error: { message: `Solution Not Found` }
+            });
+          }
+          res.solution = solution
+          next()
+        })
+        .catch(next);
+    })
+    .get((req, res, next) => {
+      SolutionsService.getCommentsForSolution(
+        req.app.get('db'),
+        req.params.solutionId
+      )
+      .then(comments => {
+        res.json(comments.map(SolutionsService.serializeSolutionComment))
+      })
+      .catch(next)
+    })
 
 module.exports = solutionsRouter;

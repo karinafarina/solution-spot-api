@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs')
+
 function makeSolutionsArray() {
   return [
     {
@@ -24,6 +26,62 @@ function makeSolutionsArray() {
   ]
 }
 
+function makeExpectedSolutionComments(users, solutionId, comments) {
+  const expectedComments = comments
+    .filter(comment => comment.solutionId === solutionId)
+  console.log('expect', expectedComments)
+  return expectedComments.map(comment => {
+    const commentUser = users.find(user => user.id === comment.userId);
+    console.log('commentuser', commentUser)
+    return {
+      id: comment.id,
+      content: comment.content,
+      user: {
+        id: commentUser.id,
+        email: commentUser.email,
+        userPassword: commentUser.userPassword,
+      }
+    }
+  })
+}
+
+function seedUsers(db, users) {
+  const prepeppedUsers = users.map(user => ({
+    ...user,
+    password: bcrypt.hashSync(user.password, 1)
+  }))
+  return db.into('users').insert(preppedUsers)
+    .then(() =>
+      //update the auto sequence to stay in sync
+      db.raw(
+        `SELECT setval('users_id_seq', ?)`,
+        [users[users.length - 1].id],
+      )
+    )
+}
+
+function seedSolutionsTables(db, users, solutions, comments = []) {
+  // use a transaction to group the queries and auto rollback on any failure
+  return db.transaction(async trx => {
+    await seedUsers(trx, users)
+    await trx.into('solutions').insert(solutions)
+    // update the auto sequence to match the forced id values
+    await trx.raw(
+      `SELECT setval('solutions_id_seq', ?)`,
+      [solutions[solutions.length - 1].id],
+    )
+    // only insert comments if there are some, also update the sequence counter
+    if (comments.length) {
+      await trx.into('comments').insert(comments)
+      await trx.raw(
+        `SELECT setval('comments_id_seq', ?)`,
+        [comments[comments.length - 1].id],
+      )
+    }
+  })
+}
+
+
 function makeMaliciousSolution() {
   const maliciousSolution = {
     id: 911,
@@ -45,5 +103,7 @@ function makeMaliciousSolution() {
 
 module.exports = {
   makeSolutionsArray,
+  makeExpectedSolutionComments,
+  seedSolutionsTables,
   makeMaliciousSolution
 }

@@ -8,15 +8,13 @@ const UsersService = require('./users-service');
 const userRouter = express.Router();
 const jsonParser = express.json();
 
-hashPassword(userPassword) {
-  return bcrypt.hash(userPassword, 12)
-},
+// hashPassword(userPassword) {
+//   return bcrypt.hash(userPassword, 12)
+// }
+
 const serializeUser = user => ({
   id: user.id,
-  userName: xss(user.userName),
-  email: xss(user.email),
-  //drop userpassword
-  userPassword: xss(user.userPassword)
+  email: xss(user.email)
 })
 
 userRouter
@@ -31,26 +29,33 @@ userRouter
 
   //HASH PASSWORD FROM USER REGISTRATION
   .post(jsonParser, (req, res, next) => {
-    const { userName, email, userPassword } = req.body;
-    const newUser = { userName, email, userPassword };
+    const { email, userPassword } = req.body;
+    const newUser = { email, userPassword };
 
     for(const [key, value] of Object.entries(newUser))
     if(value == null)
       return res.status(400).json({
         error: { message: `Missing '${key}' in request body` }
       })
-    UsersService.insertUser(
-      req.app.get('db'),
-      newUser
-    )
-    .then(user => {
-      res
-        .status(201)
-        .location(path.posix.join(req.originalUrl, `/${user.id}`))
-        .json(serializeUser(user))
-    })
-    .catch(next) 
-  })
+    
+     UsersService.hashPassword(newUser.userPassword)
+      .then((hashedPassword) => {
+        newUser.userPassword = hashedPassword
+        console.log('newuser', newUser)
+        return UsersService.insertUser(
+                req.app.get('db'),
+                newUser
+              )
+              .then(user => {
+                res
+                  .status(201)
+                  .location(path.posix.join(req.originalUrl, `/${user.id}`))
+                  .json(serializeUser(user))
+              })   
+            })
+            .catch(next) 
+          })
+  
 
   userRouter
     .route('/:user_id')
@@ -84,14 +89,14 @@ userRouter
         .catch(next)
     })
     .patch(jsonParser, (req, res, next) => {
-      const { userName, email, userPassword } = req.body;
-      const userToUpdate = { userName, email, userPassword };
+      const { email, userPassword } = req.body;
+      const userToUpdate = { email, userPassword };
       
       const numberOfValues = Object.values(userToUpdate).filter(Boolean).length;
       if(numberOfValues === 0)
         return res.status(400).json({
           error: {
-            message: `Request body must contain 'userName', 'email', 'userPassword'`
+            message: `Request body must contain 'email', 'userPassword'`
           }
         })
       UsersService.updateUser(
@@ -106,4 +111,4 @@ userRouter
     })
 
 
-  module.exports = userRouter;
+  module.exports = userRouter

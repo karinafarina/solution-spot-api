@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const app = require('../src/app')
 const { makeUsersArray } = require('./users.fixtures.js');
 
-describe.only('Auth Endpoints', function () {
+describe('Auth Endpoints', function () {
   let db
 
   const testUsers = makeUsersArray()
@@ -69,13 +69,12 @@ describe.only('Auth Endpoints', function () {
           .expect(400, { error: `Incorrect email or password` })
     })
     
-    it.only(`responds 200 and JWT auth token using secret when valid credentials`, () => {
+    it(`responds 200 and JWT auth token using secret when valid credentials`, () => {
       const newUser = {
-        userName: 'New user',
         email: 'new1@gmail.com',
         userPassword: 'newpassord',
       }
-      console.log('new', newUser)
+      
       return supertest(app)
         .post('/api/users')
         .send(newUser)
