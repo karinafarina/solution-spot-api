@@ -1,16 +1,13 @@
 const path = require('path');
 const express = require('express');
 const xss = require('xss');
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcryptjs');
 
 const UsersService = require('./users-service');
 
 const userRouter = express.Router();
 const jsonParser = express.json();
 
-// hashPassword(userPassword) {
-//   return bcrypt.hash(userPassword, 12)
-// }
 
 const serializeUser = user => ({
   id: user.id,
@@ -40,7 +37,10 @@ userRouter
     
      UsersService.hashPassword(newUser.userPassword)
       .then((hashedPassword) => {
-        newUser.userPassword = hashedPassword
+        const newUser = {
+          email,
+          userPassword: hashedPassword,
+        }
         console.log('newuser', newUser)
         return UsersService.insertUser(
                 req.app.get('db'),
@@ -53,6 +53,7 @@ userRouter
                   .json(serializeUser(user))
               })   
             })
+            
             .catch(next) 
           })
   

@@ -47,6 +47,7 @@ authenticationRouter
               const payload = { user_id: user.id }
               res.send({
                 authToken: UsersService.createJwt(sub, payload),
+                userId: user.id
               })
             })
         })
