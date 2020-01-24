@@ -5,7 +5,7 @@ const { makeCategoriesArray } = require('./categories.fixtures')
 const { makeUsersArray } = require('./users.fixtures');
 const { makeSolutionsArray } = require('./solutions.fixtures')
 
-describe('Comments Endpoints', function () {
+describe.only('Comments Endpoints', function () {
   let db;
 
   const testCategories = makeCategoriesArray();
@@ -65,7 +65,6 @@ describe('Comments Endpoints', function () {
         .send(newComment)
         .expect(201)
         .expect(res => {
-          console.log('resbody', res.body, newComment)
           expect(res.body.solutionId).to.eql(newComment.solutionId)
           expect(res.body.user.id).to.eql(testUser.id)
           expect(res.body.content).to.eql(newComment.content)

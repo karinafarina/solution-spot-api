@@ -1,6 +1,6 @@
 const path = require('path');
 const express = require('express');
-const { requireAuth } = require('../middleware/basic-auth')
+const { requireAuth } = require('../middleware/jwt-auth')
 const xss = require('xss');
 
 const SolutionsService = require('./solutions-service');

@@ -1,7 +1,7 @@
 const path = require('path')
 const express = require('express')
 const xss = require('xss');
-const { requireAuth } = require('../middleware/basic-auth')
+const { requireAuth } = require('../middleware/jwt-auth')
 const CommentsService = require('./comments-service')
 
 const commentsRouter = express.Router();
@@ -16,7 +16,7 @@ const serializeComment = comment => ({
 //get comments by solutionId
 commentsRouter
   .route('/')
-  .post(requireAuth, jsonParser, (req, res, next) => {
+  .post(jsonParser, (req, res, next) => {
     const { solutionId, content } = req.body
     const newComment = { solutionId, content }
     console.log('newcomment', newComment)
@@ -26,7 +26,7 @@ commentsRouter
           error: { message: `Missing '${key}' in request body` }
         })
 
-    newComment.userId = req.user.id;
+    newComment.userId = req.body.userId;
 
     CommentsService.insertComment(
       req.app.get('db'),

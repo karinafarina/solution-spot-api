@@ -23,9 +23,9 @@ describe('Auth Endpoints', function () {
     db.raw('TRUNCATE users, categories, solutions, comments RESTART IDENTITY CASCADE')
   )
 
-  // afterEach('cleanup', () =>
-  //   db.raw('TRUNCATE users, categories, solutions, comments RESTART IDENTITY CASCADE')
-  // )
+  afterEach('cleanup', () =>
+    db.raw('TRUNCATE users, categories, solutions, comments RESTART IDENTITY CASCADE')
+  )
 
   describe(`POST /api/auth/login`, () => {
     beforeEach('insert user', () => {
@@ -72,7 +72,7 @@ describe('Auth Endpoints', function () {
     it(`responds 200 and JWT auth token using secret when valid credentials`, () => {
       const newUser = {
         email: 'new1@gmail.com',
-        userPassword: 'newpassord',
+        userPassword: 'newPassword',
       }
       
       return supertest(app)

@@ -32,7 +32,6 @@ function makeExpectedSolutionComments(users, solutionId, comments) {
   console.log('expect', expectedComments)
   return expectedComments.map(comment => {
     const commentUser = users.find(user => user.id === comment.userId);
-    console.log('commentuser', commentUser)
     return {
       id: comment.id,
       content: comment.content,

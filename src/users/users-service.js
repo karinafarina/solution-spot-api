@@ -49,6 +49,12 @@ const UsersService = {
     })
   },
 
+  verifyJwt(token) {
+    return jwt.verify(token, config.JWT_SECRET, {
+      algorithms: ['HS256'],
+    })
+  },
+
   deleteUser(knex, user_id) {
     return knex('users')
       .where('id', parseInt(user_id, 10))

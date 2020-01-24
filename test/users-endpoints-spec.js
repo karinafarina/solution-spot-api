@@ -99,12 +99,12 @@ describe('Users Endpoints', function() {
     })
   })
 
-  describe.only('POST /api/users', () => {
+  describe('POST /api/users', () => {
 
     it('creates a user, responding with 201 and the new user', () => {
       const newUser = {
         email: 'new@gmail.com',
-        userPassword: 'newpassord',
+        userPassword: 'newPassword',
       }
       return supertest(app)
         .post('/api/users')
@@ -112,7 +112,7 @@ describe('Users Endpoints', function() {
         .expect(201)//then
         .expect(res => {
           expect(res.body.email).to.eql(newUser.email)
-          expect(res.body.userPassword).equal(newUser.userPassword)
+          // expect(res.body.userPassword).equal(newUser.userPassword)
           expect(res.body).to.have.property('id')
           expect(res.headers.location).to.eql(`/api/users/${res.body.id}`)
         })

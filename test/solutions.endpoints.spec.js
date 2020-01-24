@@ -4,8 +4,6 @@ const { makeUsersArray } = require('./users.fixtures.js');
 const { makeCommentsArray, makeMaliciousComment } = require('./comments.fixtures.js');
 const { makeSolutionsArray, seedSolutionsTables, makeExpectedSolutionComments, makeMaliciousSolution } = require('./solutions.fixtures.js');
 const { makeCategoriesArray } = require('./categories.fixtures');
-// const { makeCommentsArray } = require('./comments.fixtures');
-
 
 describe('Solutions Endpoints', function() {
   let db;
@@ -99,7 +97,7 @@ describe('Solutions Endpoints', function() {
     })
   })
 
-  describe.only('GET /api/solutions/:solutionId', () => {
+  describe('GET /api/solutions/:solutionId', () => {
     context('Given no solutions', () => {
       // beforeEach(() =>
       //   seedSolutionsTables(db, testUsers)
@@ -215,6 +213,7 @@ describe('Solutions Endpoints', function() {
       it('responds with 200 and the specified comments', () => {
         const solutionId = 1;
         const expectedComments = makeExpectedSolutionComments(testUsers, solutionId, testComments)
+        console.log('expected', expectedComments)
         return supertest(app)
           .get(`/api/solutions/${solutionId}/comments`)
           // .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
