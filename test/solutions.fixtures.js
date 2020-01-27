@@ -29,7 +29,6 @@ function makeSolutionsArray() {
 function makeExpectedSolutionComments(users, solutionId, comments) {
   const expectedComments = comments
     .filter(comment => comment.solutionId === solutionId)
-  console.log('expect', expectedComments)
   return expectedComments.map(comment => {
     const commentUser = users.find(user => user.id === comment.userId);
     return {

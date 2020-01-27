@@ -38,7 +38,6 @@ authenticationRouter
           })
           return UsersService.comparePasswords(loginUser.userPassword, user.userPassword)
             .then(compareMatch => {
-              console.log('logs', loginUser.userPassword, user.userPassword, compareMatch)
               if(!compareMatch)
                 return res.status(400).json({
                   error: 'Incorrect email or password',

@@ -41,7 +41,6 @@ userRouter
           email,
           userPassword: hashedPassword,
         }
-        console.log('newuser', newUser)
         return UsersService.insertUser(
                 req.app.get('db'),
                 newUser

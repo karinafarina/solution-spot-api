@@ -19,7 +19,6 @@ commentsRouter
   .post(jsonParser, (req, res, next) => {
     const { solutionId, content } = req.body
     const newComment = { solutionId, content }
-    console.log('newcomment', newComment)
     for(const [key, value] of Object.entries(newComment))
       if(value == null)
         return res.status(400).json({

@@ -72,14 +72,12 @@ describe.only('Comments Endpoints', function () {
           expect(res.headers.location).to.eql(`/api/comments/${res.body.id}`)
         })
         .expect(res => {
-          console.log('resss', res)
           return db  
             .from('comments')
             .select('*')
             .where({ id: res.body.id })
             .first()
             .then(row => {
-              console.log('row', row)
               expect(row.content).to.eql(newComment.content)
               expect(row.solutionId).to.eql(newComment.solutionId)
               expect(row.userId).to.eql(testUser.id)
@@ -125,6 +123,7 @@ describe.only('Comments Endpoints', function () {
     });
   })
 
+  //POSIBLE FUTURE IMPLEMENTATION
   // describe(`DELETE /api/comments/:commentId`, () => {
   //   context(`Given no comment`, () => {
   //     it(`responds with 404`, () => {

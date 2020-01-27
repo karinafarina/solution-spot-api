@@ -66,7 +66,6 @@ const SolutionsService = {
   },
 
   serializeSolutionComment(comment) {
-    console.log('commetn', comment)
     const { user } = comment
     return {
       id: comment.id,

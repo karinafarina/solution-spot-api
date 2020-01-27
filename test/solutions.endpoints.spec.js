@@ -213,7 +213,6 @@ describe('Solutions Endpoints', function() {
       it('responds with 200 and the specified comments', () => {
         const solutionId = 1;
         const expectedComments = makeExpectedSolutionComments(testUsers, solutionId, testComments)
-        console.log('expected', expectedComments)
         return supertest(app)
           .get(`/api/solutions/${solutionId}/comments`)
           // .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
