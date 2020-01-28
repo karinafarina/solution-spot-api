@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const app = require('../src/app')
 const { makeUsersArray } = require('./users.fixtures.js');
 
-describe('Auth Endpoints', function () {
+describe.only('Auth Endpoints', function () {
   let db
 
   const testUsers = makeUsersArray()
@@ -70,21 +70,31 @@ describe('Auth Endpoints', function () {
     })
     
     it(`responds 200 and JWT auth token using secret when valid credentials`, () => {
-      const newUser = {
-        email: 'new1@gmail.com',
-        userPassword: 'newPassword',
+      const userValidCreds = {
+        email: testUser.email,
+        userPassword: testUser.password,
       }
+      const expectedToken = jwt.sign(
+        { userId: testUser.id }, //payload
+        process.env.JWT_SECRET,
+        {
+          subject: testUser.email,
+          algorithm: 'HS256',
+        }
+      )
       
       return supertest(app)
-        .post('/api/users')
-        .send(newUser)
-        .expect(201)
-        .then(res => {
-          supertest(app)
-            .post('/api/auth/login')
-            .send({ email:newUser.email, userPassword: newUser.userPassword })
-            .expect(200)
+        .post('/api/auth/login')
+        .send(userValidCreds)
+        .expect(200, {
+          authToken: expectedToken,
         })
+        // .then(res => {
+        //   supertest(app)
+        //     .post('/api/auth/login')
+        //     .send({ email:newUser.email, userPassword: newUser.userPassword })
+        //     .expect(200)
+        // })
     })
   })
 })

@@ -7,7 +7,7 @@ const { makeCommentsArray } = require('./comments.fixtures.js');
 const { makeSolutionsArray } = require('./solutions.fixtures.js');
 const { makeAuthHeader } = require('./test-helpers')
 
-describe.only('Protected endpoints', function () {
+describe('Protected endpoints', function () {
   let db
 
   const testCategories = makeCategoriesArray();

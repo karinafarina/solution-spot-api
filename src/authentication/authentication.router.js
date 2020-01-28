@@ -6,14 +6,6 @@ const UsersService = require('../users/users-service');
 const authenticationRouter = express.Router();
 const jsonParser = express.json();
 
-//JWT
-// const serializeUser = user => ({
-//   id: user.id,
-//   email: xss(user.email),
-//   //drop userpassword
-//   userPassword: xss(user.userPassword)
-// })
-
 authenticationRouter
   //route to match client route
   .route('/login')
@@ -43,7 +35,7 @@ authenticationRouter
                   error: 'Incorrect email or password',
                 })
               const sub = user.email
-              const payload = { userI: user.id }
+              const payload = { userId: user.id }
               res.send({
                 authToken: UsersService.createJwt(sub, payload),
                 userId: user.id
@@ -52,17 +44,7 @@ authenticationRouter
         })
         .catch(next)
       })
-      //   return bcrypt.compare(tokenPassword, user.userPassword)
-      //     .then(passwordsMatch => {
-      //       if(!passwordsMatch) {
-      //         return res.status(401).json({ error: 'Unauthorized Request' })
-      //       }
-
-      //       req.user = user
-      //       next()
-      //     })
-      //     .catch(next)
-      // })
+      
       
 
 
