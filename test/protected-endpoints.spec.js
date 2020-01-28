@@ -5,8 +5,9 @@ const { makeUsersArray } = require('./users.fixtures.js');
 const { makeCategoriesArray } = require('./categories.fixtures')
 const { makeCommentsArray } = require('./comments.fixtures.js');
 const { makeSolutionsArray } = require('./solutions.fixtures.js');
+const { makeAuthHeader } = require('./test-helpers')
 
-describe('Protected endpoints', function () {
+describe.only('Protected endpoints', function () {
   let db
 
   const testCategories = makeCategoriesArray();
@@ -15,13 +16,6 @@ describe('Protected endpoints', function () {
   const testSolutions = makeSolutionsArray()
   const testComments = makeCommentsArray();
 
-  function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
-    const token = jwt.sign({ userId: user.id }, secret, {
-      subject: testUser.email,
-      algorithm: 'HS256',
-    })
-    return `Bearer ${token}`
-  }
 
   before('make knex instance', () => {
     db = knex({

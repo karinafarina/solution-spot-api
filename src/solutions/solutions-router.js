@@ -52,6 +52,7 @@ solutionsRouter
 
 solutionsRouter
   .route('/:solutionId')
+  .all(requireAuth)
   .all((req, res, next) => {
     const { solutionId } = req.params;
     const knexInstance = req.app.get('db')
@@ -105,6 +106,7 @@ solutionsRouter
 
   solutionsRouter
     .route('/:solutionId/comments')
+    .all(requireAuth)
     .all((req, res, next) => {
       const { solutionId } = req.params;
       const knexInstance = req.app.get('db')

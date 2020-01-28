@@ -43,7 +43,7 @@ authenticationRouter
                   error: 'Incorrect email or password',
                 })
               const sub = user.email
-              const payload = { user_id: user.id }
+              const payload = { userI: user.id }
               res.send({
                 authToken: UsersService.createJwt(sub, payload),
                 userId: user.id

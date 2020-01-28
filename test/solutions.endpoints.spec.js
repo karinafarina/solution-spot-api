@@ -4,6 +4,7 @@ const { makeUsersArray } = require('./users.fixtures.js');
 const { makeCommentsArray, makeMaliciousComment } = require('./comments.fixtures.js');
 const { makeSolutionsArray, seedSolutionsTables, makeExpectedSolutionComments, makeMaliciousSolution } = require('./solutions.fixtures.js');
 const { makeCategoriesArray } = require('./categories.fixtures');
+const { makeAuthHeader } = require('./test-helpers')
 
 describe('Solutions Endpoints', function() {
   let db;
@@ -35,13 +36,11 @@ describe('Solutions Endpoints', function() {
       it('responds with 200 and an empty list', () => {
         return supertest(app)
           .get('/api/solutions')
-          .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
           .expect(200, [])
       })
     })
 
     context('Given there are solutions', () => {
-      
       beforeEach('insert solutions', () => {
         return db
           .into('categories')
@@ -106,7 +105,7 @@ describe('Solutions Endpoints', function() {
         const solutionId = 123456
         return supertest(app)
           .get(`/api/solutions/${solutionId}`)
-          .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+          .set('Authorization', makeAuthHeader(testUsers[0]))
           .expect(404, { error: { message: `Solution Not Found` } })
       })
     })
@@ -134,7 +133,7 @@ describe('Solutions Endpoints', function() {
         const expectedSolution = testSolutions[solutionId - 1]
         return supertest(app)
           .get(`/api/solutions/${solutionId}`)
-          .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+          .set('Authorization', makeAuthHeader(testUsers[0]))
           .expect(200, expectedSolution)
       })
     })
@@ -181,7 +180,7 @@ describe('Solutions Endpoints', function() {
         const solutionId = 123456;
         return supertest(app)
           .get(`/api/solutions/${solutionId}/comments`)
-          .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+          .set('Authorization', makeAuthHeader(testUsers[0]))
           .expect(404, { error: {
             "message": "Solution Not Found"
           }
@@ -215,7 +214,7 @@ describe('Solutions Endpoints', function() {
         const expectedComments = makeExpectedSolutionComments(testUsers, solutionId, testComments)
         return supertest(app)
           .get(`/api/solutions/${solutionId}/comments`)
-          // .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+          .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
           .expect(200, expectedComments)
       })
     })
@@ -247,7 +246,7 @@ describe('Solutions Endpoints', function() {
     //   it('removes XSS attack comment', () => {
     //     return supertest(app)
     //       .get(`/api/${solutionId}/comments`)
-    //       .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+    //       .set('Authorization', makeAuthHeader(testUsers[0]))
     //       .expect(200)
     //       .expect(res => {
     //         expect(res.body[0].solutionId).to.eql(expectedComment.solutionId)
@@ -367,7 +366,7 @@ describe('Solutions Endpoints', function() {
         const expectedSolution = testSolutions.filter(solution => solution.id !== idToRemove)
         return supertest(app)
           .delete(`/api/solutions/${idToRemove}`)
-          .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+          .set('Authorization', makeAuthHeader(testUsers[0]))
           .expect(204)
           .then(res =>
             supertest(app)
@@ -422,7 +421,7 @@ describe('Solutions Endpoints', function() {
         return supertest(app)
           .patch(`/api/solutions/${idToUpdate}`)
           .send(updateSolution)
-          .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+          .set('Authorization', makeAuthHeader(testUsers[0]))
           .expect(204)
           .then(res =>
             supertest(app)
@@ -436,7 +435,7 @@ describe('Solutions Endpoints', function() {
         return supertest(app)
           .patch(`/api/solutions/${idToUpdate}`)
           .send({ irrelevantField: 'foo' })
-          .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+          .set('Authorization', makeAuthHeader(testUsers[0]))
           .expect(400, {
             error: {
               message: `Request body must contain 'categoryId', 'userId', 'content'`
@@ -460,7 +459,7 @@ describe('Solutions Endpoints', function() {
             ...updateSolution,
             fieldToIgnore: 'should not be in GET response'
           })
-          .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+          .set('Authorization', makeAuthHeader(testUsers[0]))
           .expect(204)
           .then(res =>
             supertest(app)

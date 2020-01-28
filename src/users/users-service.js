@@ -18,11 +18,11 @@ const UsersService = {
       });
   },
 
-  getById(knex, user_id) {
+  getById(knex, userId) {
     return knex
       .from('users')
       .select('*')
-      .where('id', user_id)
+      .where('id', userId)
       .first()
   },
 
@@ -55,9 +55,9 @@ const UsersService = {
     })
   },
 
-  deleteUser(knex, user_id) {
+  deleteUser(knex, userId) {
     return knex('users')
-      .where('id', parseInt(user_id, 10))
+      .where('id', parseInt(userId, 10))
       .delete()
   },
 

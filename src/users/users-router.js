@@ -58,11 +58,11 @@ userRouter
   
 
   userRouter
-    .route('/:user_id')
+    .route('/:userId')
     .all((req, res, next) => {
-      const { user_id } = req.params;
+      const { userId } = req.params;
       const knexInstance = req.app.get('db')
-      UsersService.getById(knexInstance, user_id)
+      UsersService.getById(knexInstance, userId)
         .then(user => {
           if(!user) {
             return res.status(404).json({
@@ -78,9 +78,9 @@ userRouter
       res.json(serializeUser(res.user))
     })
     .delete((req, res, next) => {
-      const { user_id } = req.params;
+      const { userId } = req.params;
       const knexInstance = req.app.get('db');
-      UsersService.deleteUser(knexInstance, user_id)
+      UsersService.deleteUser(knexInstance, userId)
         .then(numRowsAffected => {
           res.status(204).json({
             message: true
@@ -101,7 +101,7 @@ userRouter
         })
       UsersService.updateUser(
         req.app.get('db'),
-        req.params.user_id,
+        req.params.userId,
         userToUpdate,
       )
         .then(numRowsAffected => {

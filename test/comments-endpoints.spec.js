@@ -4,8 +4,9 @@ const { makeCommentsArray, makeMaliciousComment } = require('./comments.fixtures
 const { makeCategoriesArray } = require('./categories.fixtures')
 const { makeUsersArray } = require('./users.fixtures');
 const { makeSolutionsArray } = require('./solutions.fixtures')
+const { makeAuthHeader } = require('./test-helpers')
 
-describe.only('Comments Endpoints', function () {
+describe('Comments Endpoints', function () {
   let db;
 
   const testCategories = makeCategoriesArray();
@@ -50,18 +51,25 @@ describe.only('Comments Endpoints', function () {
     })
 
 //NOT PASSING
+    it(`responds 401 'Unauthorized request' when invalid password`, () => {
+      const userInvalidPass = { email: testUsers[0].email, userPassword: 'wrong'}
+      return supertest(app)
+        .post('/api/comments')
+        .set('Authorization', makeAuthHeader(userInvalidPass))
+        .expect(401, { error: 'Unauthorized request'})
+    })
+
     it('creates a comment, reponding with 201 and the new comment', () => {
       this.retries(3);
       const testSolution = testSolutions[0];
       const testUser = testUsers[0];
       const newComment = {
         solutionId: testSolution.id,
-        content: 'test new comment'
+        content: 'test new comment',
       }
-
       return supertest(app)
         .post('/api/comments')
-        .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+        .set('Authorization', makeAuthHeader(testUsers[0]))
         .send(newComment)
         .expect(201)
         .expect(res => {
@@ -100,7 +108,7 @@ describe.only('Comments Endpoints', function () {
 
         return supertest(app)
           .post('/api/comments')
-          .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+          .set('Authorization', makeAuthHeader(testUsers[0]))
           .send(newComment)
           .expect(400, {
             error: { message: `Missing '${field}' in request body` }

@@ -16,7 +16,7 @@ const serializeComment = comment => ({
 //get comments by solutionId
 commentsRouter
   .route('/')
-  .post(jsonParser, (req, res, next) => {
+  .post(requireAuth, jsonParser, (req, res, next) => {
     const { solutionId, content } = req.body
     const newComment = { solutionId, content }
     for(const [key, value] of Object.entries(newComment))

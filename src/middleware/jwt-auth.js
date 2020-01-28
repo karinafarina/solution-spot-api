@@ -17,8 +17,9 @@ function requireAuth(req, res, next) {
       payload.sub,
     )
       .then(user => {
-        if(!user)
+        if(!user || user.password !== tokenPassword) {
           return res.status(401).json({ error: 'Unauthorized request' })
+        }
         req.user = user
         next()
       })
