@@ -75,7 +75,7 @@ solutionsRouter
     const knexInstance = req.app.get('db');
     SolutionsService.deleteSolution(knexInstance, solutionId)
       .then(numRowsAffected => {
-        res.status(204).json({
+        res.status(201).json({
           message: true
         })
       })
