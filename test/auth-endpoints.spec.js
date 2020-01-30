@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const app = require('../src/app')
 const { makeUsersArray } = require('./users.fixtures.js');
 
-describe.only('Auth Endpoints', function () {
+describe('Auth Endpoints', function () {
   let db
 
   const testUsers = makeUsersArray()
@@ -89,12 +89,12 @@ describe.only('Auth Endpoints', function () {
         .expect(200, {
           authToken: expectedToken,
         })
-        // .then(res => {
-        //   supertest(app)
-        //     .post('/api/auth/login')
-        //     .send({ email:newUser.email, userPassword: newUser.userPassword })
-        //     .expect(200)
-        // })
+        .then(res => {
+          supertest(app)
+            .post('/api/auth/login')
+            .send({ email: newUser.email, userPassword: newUser.userPassword })
+            .expect(200)
+        })
     })
   })
 })

@@ -3,10 +3,12 @@ const bcrypt = require('bcryptjs')
 function makeUsersArray() {
   return [
     {
+      id: 1,
       email: "fredstreeby@gmail.com",
       "userPassword": "12345"
     },
     {
+      id: 2,
       email: "matbrady@gmail.com",
       "userPassword": "67889"
     }

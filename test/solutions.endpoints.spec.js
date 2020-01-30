@@ -2,11 +2,11 @@ const knex = require('knex');
 const app = require('../src/app');
 const { makeUsersArray } = require('./users.fixtures.js');
 const { makeCommentsArray, makeMaliciousComment } = require('./comments.fixtures.js');
-const { makeSolutionsArray, seedSolutionsTables, makeExpectedSolutionComments, makeMaliciousSolution } = require('./solutions.fixtures.js');
+const { makeSolutionsArray, seedUsers, makeExpectedSolutionComments, makeMaliciousSolution } = require('./solutions.fixtures.js');
 const { makeCategoriesArray } = require('./categories.fixtures');
 const { makeAuthHeader } = require('./test-helpers')
 
-describe('Solutions Endpoints', function() {
+describe.only('Solutions Endpoints', function() {
   let db;
 
   const testUsers = makeUsersArray();
@@ -96,12 +96,12 @@ describe('Solutions Endpoints', function() {
     })
   })
 
-  describe('GET /api/solutions/:solutionId', () => {
+  describe.only('GET /api/solutions/:solutionId', () => {
     context('Given no solutions', () => {
-      // beforeEach(() =>
-      //   seedSolutionsTables(db, testUsers)
-      // )
-      it('responds with 404', () => {
+      beforeEach(() => {
+        seedUsers(db, testUsers)
+      })
+      it.only('responds with 404', () => {
         const solutionId = 123456
         return supertest(app)
           .get(`/api/solutions/${solutionId}`)

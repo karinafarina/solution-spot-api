@@ -5,7 +5,7 @@ const { makeUsersArray } = require('./users.fixtures.js');
 const { makeCategoriesArray } = require('./categories.fixtures')
 const { makeCommentsArray } = require('./comments.fixtures.js');
 const { makeSolutionsArray } = require('./solutions.fixtures.js');
-const { makeAuthHeader } = require('./test-helpers')
+const { makeAuthHeader, makeInvalidAuthHeader } = require('./test-helpers')
 
 describe('Protected endpoints', function () {
   let db
@@ -92,7 +92,7 @@ describe('Protected endpoints', function () {
       it(`responds 401 'Unauthorized request' when invalid sub in payload`, () => {
         const invalidUser = { userEmail: 'user-not-existy', id: 1 }
         return endpoint.method(endpoint.path)
-          .set('Authorization', makeAuthHeader(invalidUser))
+          .set('Authorization', makeInvalidAuthHeader(invalidUser))
           .expect(401, { error: `Unauthorized request` })
       })
     })

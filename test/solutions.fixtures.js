@@ -46,9 +46,9 @@ function makeExpectedSolutionComments(users, solutionId, comments) {
 function seedUsers(db, users) {
   const prepeppedUsers = users.map(user => ({
     ...user,
-    password: bcrypt.hashSync(user.password, 1)
+    userPassword: bcrypt.hashSync(user.userPassword, 1)
   }))
-  return db.into('users').insert(preppedUsers)
+  return db.into('users').insert(prepeppedUsers)
     .then(() =>
       //update the auto sequence to stay in sync
       db.raw(

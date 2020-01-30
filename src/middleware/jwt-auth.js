@@ -2,7 +2,6 @@ const UserService = require('../users/users-service')
 
 function requireAuth(req, res, next) {
   const authToken = req.get('Authorization') || ''
-
   let bearerToken
   if(!authToken.toLowerCase().startsWith('bearer ')) {
     return res.status(401).json({ error: 'Missing bearer token' })
@@ -11,7 +10,6 @@ function requireAuth(req, res, next) {
   }
   try {
     const payload = UserService.verifyJwt(bearerToken)
-
     UserService.getByEmail(
       req.app.get('db'),
       payload.sub,

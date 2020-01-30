@@ -23,6 +23,15 @@ function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
   return `Bearer ${token}`
 }
 
+function makeInvalidAuthHeader(user) {
+  const token = jwt.sign({ userId: user.id }, "garbage", {
+    subject: user.email,
+    algorithm: 'HS256',
+  })
+  return `Bearer ${token}`
+}
+
 module.exports = {
   makeAuthHeader,
+  makeInvalidAuthHeader,
 }
