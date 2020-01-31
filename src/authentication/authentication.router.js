@@ -18,22 +18,27 @@ authenticationRouter
         return res.status(400).json({
           error: `Missing '${key}' in request body`
         })
-
     UsersService.getByEmail(
       req.app.get('db'),
       loginUser.email
     )
       .then(user => {
-        if(!user) 
+        console.log('user', user, loginUser.email)
+        if(!user) {
           return res.status(400).json({ 
             error: 'Incorrect email or password'
           })
+        }
+          
           return UsersService.comparePasswords(loginUser.userPassword, user.userPassword)
             .then(compareMatch => {
+              console.log('made it', compareMatch)
+
               if(!compareMatch)
                 return res.status(400).json({
                   error: 'Incorrect email or password',
                 })
+
               const sub = user.email
               const payload = { userId: user.id }
               res.send({

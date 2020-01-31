@@ -11,7 +11,7 @@ describe('Comments Endpoints', function () {
 
   const testCategories = makeCategoriesArray();
   const testUsers = makeUsersArray();
-  const testComments = makeCommentsArray()
+  // const testComments = makeCommentsArray()
   const testSolutions = makeSolutionsArray()
 
 
@@ -96,7 +96,7 @@ describe('Comments Endpoints', function () {
             .then(row => {
               expect(row.content).to.eql(newComment.content)
               expect(row.solutionId).to.eql(newComment.solutionId)
-              expect(row.userId).to.eql(testUser.userId)
+              expect(row.userId).to.eql(newComment.userId)
             })
         })
     })
@@ -124,7 +124,7 @@ describe('Comments Endpoints', function () {
       })
     })
 
-    // it.only('removes XSS attack content from response', () => {
+    // it('removes XSS attack content from response', () => {
     //   const { maliciousComment, expectedComment } = makeMaliciousComment()
     //   return supertest(app)
     //     .post('/api/comments')

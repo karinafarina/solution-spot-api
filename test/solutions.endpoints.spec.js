@@ -6,7 +6,7 @@ const { makeSolutionsArray, seedUsers, makeExpectedSolutionComments, makeMalicio
 const { makeCategoriesArray } = require('./categories.fixtures');
 const { makeAuthHeader } = require('./test-helpers')
 
-describe.only('Solutions Endpoints', function() {
+describe('Solutions Endpoints', function() {
   let db;
 
   const testUsers = makeUsersArray();
@@ -96,12 +96,12 @@ describe.only('Solutions Endpoints', function() {
     })
   })
 
-  describe.only('GET /api/solutions/:solutionId', () => {
+  describe('GET /api/solutions/:solutionId', () => {
     context('Given no solutions', () => {
       beforeEach(() => {
         seedUsers(db, testUsers)
       })
-      it.only('responds with 404', () => {
+      it('responds with 404', () => {
         const solutionId = 123456
         return supertest(app)
           .get(`/api/solutions/${solutionId}`)
@@ -160,6 +160,7 @@ describe.only('Solutions Endpoints', function() {
       it('removes XSS attack content', () => {
         return supertest(app)
           .get(`/api/solutions/${maliciousSolution.id}`)
+          .set('Authorization', makeAuthHeader(testUsers[0]))
           .expect(200)
           .expect(res => {
             expect(res.body.categoryId).to.eql(expectedSolution.categoryId)
@@ -214,7 +215,7 @@ describe.only('Solutions Endpoints', function() {
         const expectedComments = makeExpectedSolutionComments(testUsers, solutionId, testComments)
         return supertest(app)
           .get(`/api/solutions/${solutionId}/comments`)
-          .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+          .set('Authorization', makeAuthHeader(testUsers[0]))
           .expect(200, expectedComments)
       })
     })
@@ -276,7 +277,6 @@ describe.only('Solutions Endpoints', function() {
         userId: 1,
         content: 'test content'
       }
-
       return supertest(app)
         .post('/api/solutions')
         .send(newSolution)
@@ -291,14 +291,15 @@ describe.only('Solutions Endpoints', function() {
           const actualDate = new Date(res.body.modified).toLocaleDateString()
           expect(actualDate).to.eql(expectedDate)
         })
+        
         .then(res =>
           supertest(app)
             .get(`/api/solutions/${res.body.id}`)
+            .set('Authorization', makeAuthHeader(testUsers[0]))
             .expect(res.body)
         )
     })
 
-    //Ask Jeremy
     const requiredFields = ['categoryId', 'userId', 'content'];
 
     requiredFields.forEach(field => {
@@ -334,15 +335,7 @@ describe.only('Solutions Endpoints', function() {
   })
 
   describe(`DELETE /api/solutions/:solutionId`, () => {
-    context(`Given no solution`, () => {
-      it(`responds with 404`, () => {
-        const solutionId = 123456;
-        return supertest(app)
-          .delete(`/api/solutions/${solutionId}`)
-          .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
-          .expect(404, { error: { message: `Solution Not Found` } })
-      })
-    })
+   
     context('Given there are solutions in the database', () => {
 
       beforeEach('insert solution', () => {
@@ -371,102 +364,104 @@ describe.only('Solutions Endpoints', function() {
           .then(res =>
             supertest(app)
               .get(`/api/solutions`)
-              .set('Authorization', `Bearer ${process.env.API_TOKEN}`)
+              .set('Authorization', makeAuthHeader(testUsers[0]))
               .expect(expectedSolution)
           )
           .catch(error => console.log(error))
       })
     })
   })
-  
-  describe(`PATCH /api/solutions/:solutionId`, () => {
-    context(`Given no solutions`, () => {
-      it(`responds with 404`, () => {
-        const solutionId = 123456
-        return supertest(app)
-          .delete(`/api/solutions/${solutionId}`)
-          .expect(404, { error: { message: `Solution Not Found` } })
-      })
-    })
+  //MAY ADD TO FUTURE VERSION
+  // describe(`PATCH /api/solutions/:solutionId`, () => {
+  //   context(`Given no solutions`, () => {
+  //     it(`responds with 404`, () => {
+  //       const solutionId = 123456
+  //       return supertest(app)
+  //         .delete(`/api/solutions/${solutionId}`)
+  //         .set('Authorization', makeAuthHeader(testUsers[0]))
+  //         .expect(404, { error: { message: `Solution Not Found` } })
+  //     })
+  //   })
 
-    context('Given there are solutions in the database', () => {
+  //   context('Given there are solutions in the database', () => {
       
-      beforeEach('insert solutions', () => {
-        return db
-          .into('categories')
-          .insert(testCategories)
-          .then(() => {
-            return db
-              .into('users')
-              .insert(testUsers)
-              .then(() => {
-                return db
-                  .into('solutions')
-                  .insert(testSolutions);
-              })
-          })
-      })
+  //     beforeEach('insert solutions', () => {
+  //       return db
+  //         .into('categories')
+  //         .insert(testCategories)
+  //         .then(() => {
+  //           return db
+  //             .into('users')
+  //             .insert(testUsers)
+  //             .then(() => {
+  //               return db
+  //                 .into('solutions')
+  //                 .insert(testSolutions);
+  //             })
+  //         })
+  //     })
 
-      it('responds with 204 and updates the solution', () => {
-        const idToUpdate = 2
-        const updateSolution = {
-          categoryId: 4,
-          userId: 1,
-          content: 'test content'
-        }
-        const expectedSolution = {
-          ...testSolutions[idToUpdate - 1],
-          ...updateSolution
-        }
-        return supertest(app)
-          .patch(`/api/solutions/${idToUpdate}`)
-          .send(updateSolution)
-          .set('Authorization', makeAuthHeader(testUsers[0]))
-          .expect(204)
-          .then(res =>
-            supertest(app)
-              .get(`/api/solutions/${idToUpdate}`)
-              .expect(expectedSolution)
-          )
-      })
+  //     it('responds with 204 and updates the solution', () => {
+  //       const idToUpdate = 2
+  //       const updateSolution = {
+  //         categoryId: 4,
+  //         userId: 1,
+  //         content: 'test content'
+  //       }
+  //       const expectedSolution = {
+  //         ...testSolutions[idToUpdate - 1],
+  //         ...updateSolution
+  //       }
+  //       return supertest(app)
+  //         .patch(`/api/solutions/${idToUpdate}`)
+  //         .send(updateSolution)
+  //         .set('Authorization', makeAuthHeader(testUsers[0]))
+  //         .expect(204)
+  //         .then(res =>
+  //           supertest(app)
+  //             .get(`/api/solutions/${idToUpdate}`)
+  //             .set('Authorization', makeAuthHeader(testUsers[0]))
+  //             .expect(expectedSolution)
+  //         )
+  //     })
 
-      it(`responds with 400 when no required fields supplied`, () => {
-        const idToUpdate = 2
-        return supertest(app)
-          .patch(`/api/solutions/${idToUpdate}`)
-          .send({ irrelevantField: 'foo' })
-          .set('Authorization', makeAuthHeader(testUsers[0]))
-          .expect(400, {
-            error: {
-              message: `Request body must contain 'categoryId', 'userId', 'content'`
-            }
-          })
-      })
+  //     it(`responds with 400 when no required fields supplied`, () => {
+  //       const idToUpdate = 2
+  //       return supertest(app)
+  //         .patch(`/api/solutions/${idToUpdate}`)
+  //         .send({ irrelevantField: 'foo' })
+  //         .set('Authorization', makeAuthHeader(testUsers[0]))
+  //         .expect(400, {
+  //           error: {
+  //             message: `Request body must contain 'categoryId', 'userId', 'content'`
+  //           }
+  //         })
+  //     })
 
-      it(`responds with 204 when updating only a subset of fields`, () => {
-        const idToUpdate = 2
-        const updateSolution = {
-          content: 'Updated content',
-        }
-        const expectedSolution = {
-          ...testSolutions[idToUpdate - 1],
-          ...updateSolution
-        }
+  //     it(`responds with 204 when updating only a subset of fields`, () => {
+  //       const idToUpdate = 2
+  //       const updateSolution = {
+  //         content: 'Updated content',
+  //       }
+  //       const expectedSolution = {
+  //         ...testSolutions[idToUpdate - 1],
+  //         ...updateSolution
+  //       }
 
-        return supertest(app)
-          .patch(`/api/solutions/${idToUpdate}`)
-          .send({
-            ...updateSolution,
-            fieldToIgnore: 'should not be in GET response'
-          })
-          .set('Authorization', makeAuthHeader(testUsers[0]))
-          .expect(204)
-          .then(res =>
-            supertest(app)
-              .get(`/api/solutions/${idToUpdate}`)
-              .expect(expectedSolution)
-          )
-      })
-    })
-  })
+  //       return supertest(app)
+  //         .patch(`/api/solutions/${idToUpdate}`)
+  //         .send({
+  //           ...updateSolution,
+  //           fieldToIgnore: 'should not be in GET response'
+  //         })
+  //         .set('Authorization', makeAuthHeader(testUsers[0]))
+  //         .expect(204)
+  //         .then(res =>
+  //           supertest(app)
+  //             .get(`/api/solutions/${idToUpdate}`)
+  //             .expect(expectedSolution)
+  //         )
+  //     })
+  //   })
+  // })
 })

@@ -101,6 +101,7 @@ function makeMaliciousSolution() {
 
 module.exports = {
   makeSolutionsArray,
+  seedUsers,
   makeExpectedSolutionComments,
   seedSolutionsTables,
   makeMaliciousSolution

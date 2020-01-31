@@ -85,12 +85,12 @@ describe('Protected endpoints', function () {
         const validUser = testUsers[0]
         const invalidSecret = 'bad-secret'
         return endpoint.method(endpoint.path)
-          .set('Authorization', makeAuthHeader(validUser, invalidSecret))
+          .set('Authorization', makeInvalidAuthHeader(validUser, invalidSecret))
           .expect(401, { error: `Unauthorized request` })
       })
 
       it(`responds 401 'Unauthorized request' when invalid sub in payload`, () => {
-        const invalidUser = { userEmail: 'user-not-existy', id: 1 }
+        const invalidUser = { email: 'user-not-existy', userPassword: 1 }
         return endpoint.method(endpoint.path)
           .set('Authorization', makeInvalidAuthHeader(invalidUser))
           .expect(401, { error: `Unauthorized request` })

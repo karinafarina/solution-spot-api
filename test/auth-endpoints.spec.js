@@ -40,17 +40,17 @@ describe('Auth Endpoints', function () {
           email: testUser.email,
           userPassword: testUser.userPassword,
         }
-          it(`responds with 400 required error when '${field}' is missing`, () => {
-            delete loginAttemptBody[field]
-          
-            return supertest(app)
-              .post('/api/auth/login')
-              .send(loginAttemptBody)
-              .expect(400, {
-                error: `Missing '${field}' in request body`,
-              })
-          })
-      })
+        it(`responds with 400 required error when '${field}' is missing`, () => {
+          delete loginAttemptBody[field]
+        
+          return supertest(app)
+            .post('/api/auth/login')
+            .send(loginAttemptBody)
+            .expect(400, {
+              error: `Missing '${field}' in request body`,
+            })
+        })
+    })
 
     it(`responds 400 'invalid email or password' when bad email`, () => {
       const userInvalidUser = { email: 'user-not', userPassword: 'existy' }
@@ -72,29 +72,30 @@ describe('Auth Endpoints', function () {
     it(`responds 200 and JWT auth token using secret when valid credentials`, () => {
       const userValidCreds = {
         email: testUser.email,
-        userPassword: testUser.password,
+        userPassword: testUser.userPassword
       }
+      console.log('usesr', userValidCreds)
       const expectedToken = jwt.sign(
         { userId: testUser.id }, //payload
         process.env.JWT_SECRET,
         {
           subject: testUser.email,
+          //expiresIn:process.env.JWT_EXPRIRY,
           algorithm: 'HS256',
         }
       )
-      
-      return supertest(app)
-        .post('/api/auth/login')
+     supertest(app)
+        .post('/api/users')
         .send(userValidCreds)
-        .expect(200, {
-          authToken: expectedToken,
-        })
-        .then(res => {
-          supertest(app)
-            .post('/api/auth/login')
-            .send({ email: newUser.email, userPassword: newUser.userPassword })
-            .expect(200)
-        })
+        .expect(201)
+        .end(function (err, res) { 
+         return supertest(app)
+           .post('/api/auth/login')
+           .send(userValidCreds)
+           .expect(200, {
+             authToken: expectedToken
+           })
+        });
     })
   })
 })
